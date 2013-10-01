@@ -1,0 +1,85 @@
+quirinus::core
+  quirinus::core::config
+    quirinus::core::config::arch
+    quirinus::core::config::check
+    quirinus::core::config::feature
+    quirinus::core::config::include
+    quirinus::core::config::platform
+    quirinus::core::config::stdint
+    quirinus::core::config::unicode
+  quirinus::core::errors
+    quirinus::core::errors::Error
+    quirinus::core::errors::AttributeError
+    quirinus::core::errors::CastError
+    quirinus::core::errors::IndexError
+    quirinus::core::errors::MemoryError
+    quirinus::core::errors::SupportError
+    quirinus::core::errors::TypeError
+    quirinus::core::errors::ValueError
+    quirinus::core::errors::ZeroDivError
+  quirinus::core::pointers
+    quirinus::core::pointers::NullPointer
+    quirinus::core::pointers::AutoPointer
+    quirinus::core::pointers::LocalPointer
+    quirinus::core::pointers::SmartPointer
+  quirinus::core::types
+    quirinus::core::types::Object
+    quirinus::core::types::Bool
+    quirinus::core::types::Int
+    quirinus::core::types::Float
+    quirinus::core::types::Bytes
+    quirinus::core::types::Unicode
+    quirinus::core::types::List
+  quirinus::core::functions
+    quirinus::core::functions::typecast
+    quirinus::core::functions::errorstr
+
+quirinus::system
+  quirinus::system::arch
+  quirinus::system::byteorder
+  quirinus::system::encoding_filesystem
+  quirinus::system::encoding_locale
+  quirinus::system::encoding_stdin
+  quirinus::system::encoding_stdout
+  quirinus::system::encoding_stderr
+  quirinus::system::platform
+  quirinus::system::system
+
+quirinus::codecs
+[core]
+  quirinus::codecs::Codec
+  quirinus::codecs::ASCII
+  quirinus::codecs::UTF8
+  quirinus::codecs::UTF16
+  quirinus::codecs::UTF32
+  quirinus::codecs::SingleByte
+  quirinus::codecs::MultiByte
+
+quirinus::stream
+[core, codecs, filesystem]
+  quirinus::stream::File
+  quirinus::stream::Filter
+  quirinus::stream::ZlibFilter
+  quirinus::stream::GzipFilter
+  quirinus::stream::Bzip2Filter
+  quirinus::stream::LZMAFilter
+  quirinus::stream::Base64Filter
+
+quirinus::filesystem
+[core, codecs, system]
+  quirinus::filesystem::cwd
+  quirinus::filesystem::executable
+  quirinus::filesystem::link
+  quirinus::filesystem::mkdir
+  quirinus::filesystem::rmdir
+  quirinus::filesystem::rmfile
+  quirinus::filesystem::symlink
+  quirinus::filesystem::Path
+  quirinus::filesystem::FilePath
+  quirinus::filesystem::VirtualPath
+
+quirinus::regex
+[core]
+  quirinus::regex::Pattern
+  quirinus::regex::Options
+  quirinus::regex::RegexError

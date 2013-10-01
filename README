@@ -1,0 +1,35 @@
+Quirinus
+========================
+Quirinus is a C++ library created to provide some basic types and functions
+similar to some script languages.
+
+Base types:
+  Object: base type, parent for any other type.
+  Bool: boolean type, which may be true or false.
+  Int: multiple precision integer using GMP library.
+  Float: multiple precision float using MPFR library.
+  Bytes: byte string, providing all necessary functions.
+  Unicode: unicode string, providing all necessary functions.
+
+Encoding support:
+  Support for the most popular encodings (including Unicode encodings).
+  Support for 8, 16 and 32-bit character sets.
+    char: same as in ANSI C; sign of char is meanless.
+    wchar_t: depends on size in bits; if 4, then the same as unicode.
+    bytechar: same as uint8_t type, provided just for compatibility.
+    widechar: same as uint16_t type, can be used for wchar_t emulation.
+    unicode: same as uint32_t type, used to store Unicode characters.
+  Each has its std::vector typedef (charstack, wcharstack, bytecharstack,
+  widecharstack, unicodestack); std::string and std::wstring containers are not
+  used due to poor multithreading support in some libraries.
+
+Mathematical library:
+  Support for the functions available from GMP and MPFR libraries.
+
+Regular expressions:
+  Support for the regular expressions using PCRE library.
+
+License
+========================
+Quirinus source code is licensed under GNU General Public License v3.0+.
+Full text of the license is available in COPYING file.

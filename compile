@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+# encoding: UTF-8
+
+QUIRINUS_CXX="clang++"
+QUIRINUS_OPTIONS="-pedantic -Wno-long-long"
+QUIRINUS_OPTIONS="${QUIRINUS_OPTIONS} -O3 -static"
+
+
+clear && clear && clear
+
+
+echo "quirinus::core"
+${QUIRINUS_CXX} \
+  -Wall -Wno-long-long \
+  -ansi -pedantic -O3 -Ilib \
+  -c "src/quirinus/core.cpp" -o "build/core.o"
+
+
+echo "quirinus::codecs"
+${QUIRINUS_CXX} \
+  -Wall -Wno-long-long \
+  -ansi -pedantic -O3 -Ilib \
+  -c "src/quirinus/codecs.cpp" -o "build/codecs.o"
+
+
+# echo "quirinus::filesystem"
+# ${QUIRINUS_CXX} \
+#   -Wall -Wno-long-long \
+#   -ansi -pedantic -O3 -Ilib \
+#   -c "src/quirinus/filesystem.cpp" -o "build/filesystem.o"
+
+
+${QUIRINUS_CXX} \
+  -Wall -Wno-long-long \
+  -ansi -pedantic -O3 -Ilib \
+  "build/core.o" "build/codecs.o" \
+  "main.cpp" -o "main" \
+  -lmpfr -lgmp -lpcre
+
