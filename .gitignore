@@ -1,6 +1,8 @@
+.directory
+*/.directory
 bin/*
 build/*
 change.py
 main.cpp
-main
 REFERENCE
+main
