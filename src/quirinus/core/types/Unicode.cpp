@@ -15,10 +15,11 @@ Unicode::Unicode(const Object& object)
 Bytes
 Unicode::repr() const
 {
-  uint8_t code;
   charstack stack;
+  unicode code = 0;
+  size_t count = 0;
   size_t size = self.size();
-  char* buffer = new char[4];
+  char* buffer = new char[10];
   for (size_t i = 0; i < size; ++i)
   {
     code = self[i];
@@ -59,11 +60,14 @@ Unicode::repr() const
     }
     else
     {
-      sprintf(buffer, "\\x%02x", code);
-      stack.push_back(buffer[0]);
-      stack.push_back(buffer[1]);
-      stack.push_back(buffer[2]);
-      stack.push_back(buffer[3]);
+      ::memset(buffer, 0, 10);
+      count = (code < 0xFFFF) ? 6 : 10;
+      if (code < 0xFFFF)
+        ::sprintf(buffer, "\\u%04x", code);
+      else
+        ::sprintf(buffer, "\\u%08x", code);
+      for (size_t j = 0; j < count; ++j)
+        stack.push_back(buffer[j]);
     }
   }
   delete[] buffer;
@@ -81,14 +85,16 @@ Unicode::cast_bool() const
 Int
 Unicode::cast_int() const
 {
-  // pass
+  Bytes stack(this->cast_bytes());
+  return stack.cast_int();
 }
 
 
 Float
 Unicode::cast_float() const
 {
-  // pass
+  Bytes stack(this->cast_bytes());
+  return stack.cast_float();
 }
 
 

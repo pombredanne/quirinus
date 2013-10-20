@@ -14,7 +14,7 @@ u32_mbslen(const bytechar* iter,
            size_t& declen,
            size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   const bytechar* tail;
   tail = (iter + enclen);
   union codeconv {

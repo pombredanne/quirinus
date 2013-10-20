@@ -5,11 +5,12 @@
 
 #ifndef QUIRINUS_SYSTEM_ENCODING_FILESYSTEM_HPP
 #define QUIRINUS_SYSTEM_ENCODING_FILESYSTEM_HPP
+#include "encoding_locale.hpp"
 namespace quirinus {
-namespace system {
 
 
-Bytes encoding_filesystem()
+inline Bytes
+encoding_filesystem()
 {
 #if defined(QUIRINUS_PLATFORM_WINDOWS)
   return Bytes("UTF-16");
@@ -25,6 +26,5 @@ Bytes encoding_filesystem()
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_SYSTEM_ENCODING_FILESYSTEM_HPP

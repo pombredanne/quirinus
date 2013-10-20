@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~TypeError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   TypeError()
   : self_message(NULL)

@@ -14,14 +14,13 @@ u16_ucslen(const unicode* iter,
            size_t& enclen,
            size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   const unicode* tail;
   tail = (iter + declen);
 
   // Reset variables.
   offset = 0;
   enclen = 0;
-  state = UNICODE_STATE_SUCCESS;
 
   // Check null pointer.
   if (iter == NULL)

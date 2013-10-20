@@ -102,13 +102,13 @@ Object::operator unsigned long() const
 
 
 #if (QUIRINUS_FEATURE_LONGLONG)
-Object::operator signed char() const
+Object::operator signed long long() const
 {
   return this->cast_int();
 }
 
 
-Object::operator unsigned char() const
+Object::operator unsigned long long() const
 {
   return this->cast_int();
 }

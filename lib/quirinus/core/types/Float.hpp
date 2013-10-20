@@ -28,9 +28,7 @@ public:
   Bytes repr(const Int&) const;
 public:
   ~Float()
-  {
-    ::mpfr_clear(self);
-  }
+  { ::mpfr_clear(self); }
 
   Float()
   {
@@ -46,10 +44,7 @@ public:
 
 #if (QUIRINUS_FEATURE_CXX11)
   Float(const Float&& object)
-  : self()
-  {
-    swap(*this, object);
-  }
+  { swap(*this, object); }
 #endif
 
   /*
@@ -173,9 +168,7 @@ public:
   // Swap function
   inline friend void
   swap(Float& lhs, Float& rhs)
-  {
-    ::mpfr_swap(lhs.self, rhs.self);
-  }
+  { ::mpfr_swap(lhs.self, rhs.self); }
 
 
   // Assignment function
@@ -190,9 +183,7 @@ public:
   // Comparison functions
   static inline int
   cmp(const Float& lhs, const Float& rhs)
-  {
-    return ::mpfr_cmp(lhs.self, rhs.self);
-  }
+  { return ::mpfr_cmp(lhs.self, rhs.self); }
 
 
   // Mathematical functions

@@ -6,10 +6,10 @@
 #ifndef QUIRINUS_CORE_SYSTEM_ENCODING_LOCALE_HPP
 #define QUIRINUS_CORE_SYSTEM_ENCODING_LOCALE_HPP
 namespace quirinus {
-namespace system {
 
 
-Bytes encoding_locale()
+inline Bytes
+encoding_locale()
 {
 #if (QUIRINUS_FEATURE_LANGINFO)
   char* buffer = NULL;
@@ -35,6 +35,5 @@ Bytes encoding_locale()
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_CORE_SYSTEM_ENCODING_LOCALE_HPP

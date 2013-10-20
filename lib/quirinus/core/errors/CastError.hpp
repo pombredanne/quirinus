@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~CastError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   CastError()
   : self_message(NULL)

@@ -6,10 +6,10 @@
 #ifndef QUIRINUS_SYSTEM_DATAMODEL_HPP
 #define QUIRINUS_SYSTEM_DATAMODEL_HPP
 namespace quirinus {
-namespace system {
 
 
-Bytes datamodel()
+inline Bytes
+datamodel()
 {
   if ((sizeof(int) == 2)
   ||  (sizeof(long) == 4)
@@ -38,6 +38,5 @@ Bytes datamodel()
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_SYSTEM_DATAMODEL_HPP

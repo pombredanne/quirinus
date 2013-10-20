@@ -11,15 +11,15 @@ Bool
 FilePath::exists() const
 {
 #if (QUIRINUS_FEATURE_POSIX)
-  int32_t state;
+  int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
   return (state == 0);
 #else
-  uint32_t attributes;
-  if (self.mode == API::WINANSI)
+  DWORD attributes = 0;
+  if (self_api == API::WINANSI)
     attributes = ::GetFileAttributesA(*this);
-  else if (self.mode == API::WINWIDE)
+  else if (self_api == API::WINWIDE)
     attributes = ::GetFileAttributesW(*this);
   return (attributes != INVALID_FILE_ATTRIBUTES);
 #endif

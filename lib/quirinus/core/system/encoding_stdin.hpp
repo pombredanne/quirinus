@@ -5,15 +5,16 @@
 
 #ifndef QUIRINUS_CORE_SYSTEM_ENCODING_STDIN_HPP
 #define QUIRINUS_CORE_SYSTEM_ENCODING_STDIN_HPP
+#include "encoding_locale.hpp"
 namespace quirinus {
-namespace system {
 
 
-Bytes encoding_stdin()
+inline Bytes
+encoding_stdin()
 {
 #if defined(QUIRINUS_PLATFORM_WINDOWS)
   size_t len = 13;
-  char buffer* buffer = new char[len];
+  char* buffer = new char[len];
   ::snprintf(buffer, len, "CP%u", ::GetConsoleCP());
   return Bytes(buffer);
 #elif defined(QUIRINUS_PLATFORM_UNIX) \
@@ -21,13 +22,12 @@ Bytes encoding_stdin()
   return Bytes("UTF-8");
 #elif defined(QUIRINUS_PLATFORM_UNIX) \
 || defined(QUIRINUS_PLATFORM_BSD)
-  return system::encoding_locale();
+  return encoding_locale();
 #else
   return Bytes("US-ASCII");
 #endif
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_CORE_SYSTEM_ENCODING_STDIN_HPP

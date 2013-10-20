@@ -15,8 +15,7 @@ public:
   virtual Int mode() const = 0;
   virtual Int ino() const = 0;
   virtual Int dev() const = 0;
-  virtual Int rdev() const = 0;
-  virtual Int nlink() const = 0;
+  virtual Int links() const = 0;
   virtual Int uid() const = 0;
   virtual Int gid() const = 0;
   virtual Int size() const = 0;

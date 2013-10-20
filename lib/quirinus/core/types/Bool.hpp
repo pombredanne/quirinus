@@ -26,17 +26,6 @@ public:
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
 public:
-  /*
-  Clone create() const;
-  Clone clone() const;
-  Bytes repr() const;
-  Bool cast_bool() const;
-  Int cast_int() const;
-  Float cast_float() const;
-  Bytes cast_bytes() const;
-  Unicode cast_unicode() const;
-  */
-public:
   ~Bool()
   {}
 
@@ -51,17 +40,8 @@ public:
 #if (QUIRINUS_FEATURE_CXX11)
   Bool(const Bool&& object)
   : self()
-  {
-    swap(*this, object);
-  }
+  { swap(*this, object); }
 #endif
-
-  /*
-  Bool(const Object& object)
-  : self(object.cast_bool())
-  {}
-  */
-
 
   // Swap function
   friend inline void
@@ -84,29 +64,21 @@ public:
   // Cast functions
   inline
   operator bool() const
-  {
-    return self;
-  }
+  { return self; }
 
 
   // Logical functions
   friend inline Bool
   operator&(const Bool& lhs, const Bool& rhs)
-  {
-    return (lhs.self & rhs.self);
-  }
+  { return (lhs.self & rhs.self); }
 
   friend inline Bool
   operator|(const Bool& lhs, const Bool& rhs)
-  {
-    return (lhs.self | rhs.self);
-  }
+  { return (lhs.self | rhs.self); }
 
   friend inline Bool
   operator^(const Bool& lhs, const Bool& rhs)
-  {
-    return (lhs.self ^ rhs.self);
-  }
+  { return (lhs.self ^ rhs.self); }
 
 
   // Modifying functions
@@ -129,18 +101,6 @@ public:
   {
     self ^= object.self;
     return *this;
-  }
-
-
-  // Special functions
-  friend inline std::ostream&
-  operator<<(std::ostream& sstream, const Bool& object)
-  {
-    if (object.self)
-      sstream << "true";
-    else
-      sstream << "false";
-    return sstream;
   }
 };
 

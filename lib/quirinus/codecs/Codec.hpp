@@ -15,7 +15,7 @@ public:
   virtual Codec* clone() const = 0;
   virtual Bytes encoding() const = 0;
   virtual Unicode decode(const Bytes& string) const = 0;
-  virtual Bytes encode(const Bytes& string) const = 0;
+  virtual Bytes encode(const Unicode& string) const = 0;
 public:
   ~Codec()
   {}

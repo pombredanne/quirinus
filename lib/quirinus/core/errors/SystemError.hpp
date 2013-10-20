@@ -7,8 +7,6 @@
 #define QUIRINUS_CORE_ERRORS_SYSTEMERROR_HPP
 namespace quirinus {
 
-namespace quirinus {
-
 
 class SystemError: public Error
 {
@@ -17,17 +15,16 @@ private:
   char* self_message;
 public:
   ~SystemError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   SystemError()
-  : self_message(NULL)
+  : self_code(0)
+  , self_message(NULL)
   {}
 
   SystemError(const char* message)
-  : self_message(NULL)
-  , self_code(0)
+  : self_code(0)
+  , self_message(NULL)
   {
     if (message)
       self_message = nullstrdup(message);
@@ -35,9 +32,10 @@ public:
       self_message = NULL;
   }
 
-  SystemError(const int32_t& code)
-  : self_message(NULL),
-  , self_code(code)
+  SystemError(const int64_t& code,
+              const bool& POSIX = true)
+  : self_code(code)
+  , self_message(NULL)
   {
 #if !defined(QUIRINUS_PLATFORM_WINDOWS)
     int32_t state;
@@ -52,8 +50,8 @@ public:
       }
       for (size_t i = 0; i < size; ++i)
         buffer[i] = 0;
-      state = ::strerror_r(code, buffer, size);
-      state = (!state) ? 0 : errno;
+      buffer = ::strerror_r(code, buffer, size);
+      state = (!buffer) ? 0 : errno;
       if (state && (errno != ERANGE))
       {
         delete[] buffer;
@@ -67,18 +65,18 @@ public:
 #else // #if defined(QUIRINUS_PLATFORM_WINDOWS)
     uint16_t lang;
     uint32_t flags;
-    wchar_t* buffer = NULL;
+    char* buffer = NULL;
     flags = FORMAT_MESSAGE_ALLOCATE_BUFFER;
     flags |= FORMAT_MESSAGE_IGNORE_INSERTS;
     flags |= FORMAT_MESSAGE_FROM_SYSTEM;
     lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
-    size_t size = ::FormatMessageA(flags, NULL, code, lang, &buffer, 0, NULL);
+    size_t size = ::FormatMessageA(flags, NULL, code, lang, buffer, 0, NULL);
     if (size > 0)
     {
       while (size > 0)
       {
-        byte value = static_cast<byte>(buffer[(size - 1)]);
-        if ((byte <= ' ') && (byte == '.'))
+        bytechar value = static_cast<bytechar>(buffer[(size - 1)]);
+        if ((value <= ' ') && (value == '.'))
           buffer[--size] = 0;
       }
     }
@@ -104,7 +102,7 @@ public:
     sstream << "SystemError";
     if (self_message && self_code)
       sstream << '[' << self_code << ']' << ": " << self_message;
-    else (self_message && !self_code)
+    else if (self_message && !self_code)
       sstream << ": " << self_message;
     return sstream.str().c_str();
   }

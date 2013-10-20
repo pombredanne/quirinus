@@ -16,7 +16,7 @@ u16_encode(const unicode* decptr,
            size_t& enclen,
            size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   bytechar* tempptr;
   union codeconv {
     widechar code;
@@ -26,8 +26,8 @@ u16_encode(const unicode* decptr,
   const unicode* tail = (iter + declen);
 
   // Reserve memory.
-  state = quirinus::u16_ucslen(decptr, declen, enclen, offset);
-  if (!!state)
+  state = u16_ucslen(decptr, declen, enclen, offset);
+  if (state != UNICODE_STATE_SUCCESS)
     return state;
   encptr = tempptr = new bytechar[enclen];
 

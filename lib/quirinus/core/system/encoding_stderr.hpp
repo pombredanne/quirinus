@@ -5,16 +5,16 @@
 
 #ifndef QUIRINUS_CORE_SYSTEM_ENCODING_STDERR_HPP
 #define QUIRINUS_CORE_SYSTEM_ENCODING_STDERR_HPP
+#include "encoding_stdout.hpp"
 namespace quirinus {
-namespace system {
 
 
-Bytes encoding_stderr()
+inline Bytes
+encoding_stderr()
 {
-  return system::encoding_stdout();
+  return encoding_stdout();
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_CORE_SYSTEM_ENCODING_STDERR_HPP

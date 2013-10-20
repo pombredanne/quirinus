@@ -15,13 +15,14 @@ Bytes::Bytes(const Object& object)
 Bytes
 Bytes::repr() const
 {
-  uint8_t code;
-  charstack stack;
-  size_t size = self.size();
+  bytechar code = 0;
+  bytecharstack stack;
   char* buffer = new char[4];
-  for (size_t i = 0; i < size; ++i)
+  bytecharstack::const_iterator iter = self.begin();
+  bytecharstack::const_iterator tail = self.end();
+  while (iter < tail)
   {
-    code = self[i];
+    code = *iter;
     if (code < 0x80)
     {
       if ((code == 0x00)  // \0
@@ -59,12 +60,11 @@ Bytes::repr() const
     }
     else
     {
-      sprintf(buffer, "\\x%02x", code);
-      stack.push_back(buffer[0]);
-      stack.push_back(buffer[1]);
-      stack.push_back(buffer[2]);
-      stack.push_back(buffer[3]);
+      ::sprintf(buffer, "\\x%02x", code);
+      for (size_t j = 0; j < 4; ++j)
+        stack.push_back(buffer[j]);
     }
+    ++iter;
   }
   delete[] buffer;
   return Bytes(stack.begin(), stack.end());
@@ -81,14 +81,28 @@ Bytes::cast_bool() const
 Int
 Bytes::cast_int() const
 {
-  // pass
+  mpz_t operand;
+  int state = 0;
+  ::mpz_init(operand);
+  char* buffer = this->nullstr();
+  state = ::mpz_set_str(operand, buffer, 10);
+  if (state != 0)
+  {
+    delete[] buffer;
+    ::mpz_clear(operand);
+    throw CastError("int casting failed");
+  }
+  Int stack(operand);
+  ::mpz_clear(operand);
+  delete[] buffer;
+  return stack;
 }
 
 
 Float
 Bytes::cast_float() const
 {
-  // pass
+  return 1.0;
 }
 
 

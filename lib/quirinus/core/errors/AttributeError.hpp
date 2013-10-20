@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~AttributeError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   AttributeError()
   : self_message(NULL)

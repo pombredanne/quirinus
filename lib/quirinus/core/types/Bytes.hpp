@@ -26,6 +26,9 @@ public:
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
 public:
+  typedef bytecharstack::iterator iterator;
+  typedef bytecharstack::const_iterator const_iterator;
+public:
   ~Bytes()
   {}
 
@@ -55,7 +58,7 @@ public:
 #if (UNICODE_WCHAR_SIZE == 4)
     const unicode* pointer = reinterpret_cast<const unicode*>(object);
 #else
-    const widechar* pointer = reinterpret_cast<const bytechar*>(object);
+    const widechar* pointer = reinterpret_cast<const widechar*>(object);
 #endif
     Bytes stack(pointer, quirinus::nullstrlen(pointer));
     swap(*this, stack);
@@ -97,6 +100,7 @@ public:
     swap(*this, stack);
   }
 
+
   Bytes(const bytechar* object, const size_t& len)
   {
     if (!object)
@@ -110,20 +114,20 @@ public:
   {
     if (!object)
       throw MemoryError("null pointer access");
-    int state;
-    size_t offset;
-    size_t declen;
-    size_t enclen;
-    unicode* decptr;
-    bytechar* encptr;
+    int state = 0;
+    size_t offset = 0;
+    size_t declen = 0;
+    size_t enclen = 0;
+    unicode* decptr = NULL;
+    bytechar* encptr = NULL;
     const size_t xlen = (len * 2);
     const bytechar* xptr = reinterpret_cast<const bytechar*>(object);
     state = u16_decode(xptr, xlen, decptr, declen, offset);
-    if (state != UNICODE_STATE_SUCCESS) {}
-      // throw DecodeError();
+    if (state != UNICODE_STATE_SUCCESS)
+      throw DecodeError(state, offset, "UTF-16");
     state = u8_encode(decptr, declen, encptr, enclen, offset);
-    if (state != UNICODE_STATE_SUCCESS) {}
-      // throw EncodeError();
+    if (state != UNICODE_STATE_SUCCESS)
+      throw EncodeError(state, offset, "UTF-8");
     self.reserve(enclen);
     for (size_t i = 0; i < enclen; ++i)
       self.push_back(encptr[i]);
@@ -135,13 +139,14 @@ public:
   {
     if (!object)
       throw MemoryError("null pointer access");
-    int state;
+    int state = 0;
     size_t offset = 0;
     size_t enclen = 0;
     bytechar* encptr = NULL;
     state = u8_encode(object, len, encptr, enclen, offset);
-    if (state != UNICODE_STATE_SUCCESS) {}
-      // throw EncodeError();
+    std::cout << "unicode " << state << std::endl;
+    if (state != UNICODE_STATE_SUCCESS)
+      throw EncodeError(state, offset, "UTF-8");
     self.reserve(enclen);
     for (size_t i = 0; i < enclen; ++i)
       self.push_back(encptr[i]);
@@ -214,14 +219,10 @@ public:
 
   // Cast functions
   operator const char*() const
-  {
-    return reinterpret_cast<const char*>(&self[0]);
-  }
+  { return reinterpret_cast<const char*>(&self[0]); }
 
   operator const bytechar*() const
-  {
-    return reinterpret_cast<const bytechar*>(&self[0]);
-  }
+  { return reinterpret_cast<const bytechar*>(&self[0]); }
 
 
   // Comparison functions
@@ -296,6 +297,9 @@ public:
 
 
   // Modifying functions
+  /**
+   * @brief Concatenate current string with the other string.
+   */
   inline Bytes&
   operator+(const Bytes& object)
   {
@@ -305,6 +309,9 @@ public:
     return *this;
   }
 
+  /**
+   * @brief 
+   */
   inline Bytes&
   operator*(Int count)
   {
@@ -324,16 +331,79 @@ public:
 
 
   // Other functions
+  /**
+   * @brief 
+   */
+  inline iterator
+  begin()
+  { return self.begin(); }
+
+
+  /**
+   * @brief 
+   */
+  inline const_iterator
+  begin() const
+  { return self.begin(); }
+
+
+  /**
+   * @brief 
+   */
+  inline iterator
+  end()
+  { return self.end(); }
+
+
+  /**
+   * @brief 
+   */
+  inline const_iterator
+  end() const
+  { return self.end(); }
+
+
+  /**
+   * @brief Return string length.
+   */
   inline Int
   length() const
+  { return self.size(); }
+
+
+  /**
+   * @brief Return null terminated string.
+   * @WARNING Allocated memory must be freed using delete[] statement.
+   */
+  inline char*
+  nullstr() const
   {
-    return self.size();
+    bytecharstack::const_iterator iter = self.begin();
+    bytecharstack::const_iterator tail = self.end();
+    size_t size = self.size();
+    char* buffer = new char[size + 1];
+    for (size_t i = 0; iter < tail; ++iter, ++i)
+      buffer[i] = *iter;
+    buffer[size] = 0;
+    return buffer;
   }
 
+
+  /**
+   * @brief Check if null character occurs.
+   */
   inline Bool
   nullcheck() const
   {
-    return (std::find(self.begin(), self.end(), 0) != self.end());
+    bytecharstack::const_iterator iter = self.begin();
+    bytecharstack::const_iterator tail = self.end();
+    while (iter < tail)
+    {
+      if (*iter == 0)
+        return true;
+      ++iter;
+    }
+    return false;
   }
 };
 

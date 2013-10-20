@@ -6,8 +6,6 @@
 #ifndef QUIRINUS_CODECS_UTF8CODEC_HPP
 #define QUIRINUS_CODECS_UTF8CODEC_HPP
 #include "Codec.hpp"
-#include "DecodeError.hpp"
-#include "EncodeError.hpp"
 namespace quirinus {
 namespace codecs {
 
@@ -25,42 +23,45 @@ public:
   // Virtual functions
   inline UTF8Codec*
   clone() const
-  {
-    return new UTF8Codec;
-  }
+  { return new UTF8Codec; }
+
+  inline Bytes
+  repr() const
+  { return "codecs::UTF-8"; }
 
 
   // Codec functions
-  Bytes encoding() const
-  {
-    return "UTF-8";
-  }
+  inline Bytes
+  encoding() const
+  { return "UTF-8"; }
 
-  Unicode decode(const Bytes& object) const
+  inline Unicode
+  decode(const Bytes& object) const
   {
     int state;
     size_t offset = 0;
     size_t declen = 0;
     unicode* decptr = NULL;
     size_t enclen = object.length();
-    const bytechar* encptr = object;
+    const bytechar* encptr = static_cast<const bytechar*>(object);
     state = u8_decode(encptr, enclen, decptr, declen, offset);
     if (state != UNICODE_STATE_SUCCESS)
-      throw DecodeError(state, offset, *this);
+      throw DecodeError(state, offset, "UTF-8");
     return Unicode(decptr, declen);
   }
 
-  Bytes encode(const Bytes& object) const
+  inline Bytes
+  encode(const Unicode& object) const
   {
     int state;
     size_t offset = 0;
     size_t enclen = 0;
     bytechar* encptr = NULL;
     size_t declen = object.length();
-    const unicode* decptr = object;
+    const unicode* decptr = static_cast<const unicode*>(object);
     state = u8_encode(decptr, declen, encptr, enclen, offset);
     if (state != UNICODE_STATE_SUCCESS)
-      throw DecodeError(state, offset, *this);
+      throw EncodeError(state, offset, "UTF-8");
     return Bytes(encptr, enclen);
   }
 };

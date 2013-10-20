@@ -11,30 +11,22 @@ namespace quirinus {
 class ZeroDivError: public Error
 {
 private:
-  char* self_str;
+  char* self_message;
 public:
   ~ZeroDivError() throw()
-  {
-    delete[] self_str;
-  }
+  { delete[] self_message; }
 
   ZeroDivError()
-  : self_str(NULL)
+  : self_message(NULL)
   {}
 
   ZeroDivError(const char* message)
-  : self_str(NULL)
+  : self_message(NULL)
   {
     if (message)
-    {
-      size_t length = ::strlen(message);
-      self_str = new char[(length + 1)];
-      for (size_t i = 0; i < length; ++i)
-        self_str[i] = message[i];
-      self_str[length] = 0;
-    }
+      self_message = nullstrdup(message);
     else
-      self_str = NULL;
+      self_message = NULL;
   }
 
 
@@ -44,8 +36,8 @@ public:
   {
     std::ostringstream sstream;
     sstream << "ZeroDivError";
-    if (self_str)
-      sstream << ": " << self_str;
+    if (self_message)
+      sstream << ": " << self_message;
     return sstream.str().c_str();
   }
 };

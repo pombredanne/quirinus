@@ -27,15 +27,16 @@ public:
   Unicode cast_unicode() const;
   Bytes repr(const Int&) const;
 public:
+  friend Bytes operator*(const Bytes& object, Int count);
+  friend Bytes operator*(Int count, const Bytes& object);
+  friend Unicode operator*(const Unicode& object, Int count);
+  friend Unicode operator*(Int count, const Unicode& object);
+public:
   ~Int()
-  {
-    ::mpz_clear(self);
-  }
+  { ::mpz_clear(self); }
 
   Int()
-  {
-    ::mpz_init(self);
-  }
+  { ::mpz_init(self); }
 
   Int(const Int& object)
   {
@@ -45,19 +46,8 @@ public:
 
 #if (QUIRINUS_FEATURE_CXX11)
   Int(const Int&& object)
-  {
-    swap(*this, object);
-  }
+  { swap(*this, object); }
 #endif
-
-  /*
-  Int(const Object& object)
-  {
-    Int operand = object.cast_int();
-    ::mpz_init(self);
-    ::mpz_set(self, operand.self);
-  }
-  */
 
   Int(const bool& object)
   {
@@ -140,7 +130,7 @@ public:
     ::mpz_init2(self, (sizeof(unsigned long long) * 8));
     ::mpz_import(self, 1, 1, sizeof(unsigned long long), 0, 0, &object);
   }
-#endif // !QUIRINUS_FEATURE_LONGLONG
+#endif
 
   Int(const float& object)
   {
@@ -194,9 +184,7 @@ public:
   // Swap function
   inline friend void
   swap(Int& lhs, Int& rhs)
-  {
-    ::mpz_swap(lhs.self, rhs.self);
-  }
+  { ::mpz_swap(lhs.self, rhs.self); }
 
 
   // Assignment function
@@ -211,136 +199,120 @@ public:
   // Cast functions
   operator signed char() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     signed char stack;
-    ::mpz_init2(min, (sizeof(signed char) * 8));
-    ::mpz_init2(max, (sizeof(signed char) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<signed char>::min();
+    Int max = std::numeric_limits<signed char>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(signed char), 0, 0, self);
-      return static_cast<signed char>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ signed char casting failed");
   }
 
   operator unsigned char() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     unsigned char stack;
-    ::mpz_init2(min, (sizeof(unsigned char) * 8));
-    ::mpz_init2(max, (sizeof(unsigned char) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<unsigned char>::min();
+    Int max = std::numeric_limits<unsigned char>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(unsigned char), 0, 0, self);
-      return static_cast<unsigned char>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ unsigned char casting failed");
   }
 
   operator signed short() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     signed short stack;
-    ::mpz_init2(min, (sizeof(signed short) * 8));
-    ::mpz_init2(max, (sizeof(signed short) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<signed short>::min();
+    Int max = std::numeric_limits<signed short>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(signed short), 0, 0, self);
-      return static_cast<signed short>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ signed short casting failed");
   }
 
   operator unsigned short() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     unsigned short stack;
-    ::mpz_init2(min, (sizeof(unsigned short) * 8));
-    ::mpz_init2(max, (sizeof(unsigned short) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<unsigned short>::min();
+    Int max = std::numeric_limits<unsigned short>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(unsigned short), 0, 0, self);
-      return static_cast<unsigned short>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ unsigned short casting failed");
   }
 
   operator signed int() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     signed int stack;
-    ::mpz_init2(min, (sizeof(signed int) * 8));
-    ::mpz_init2(max, (sizeof(signed int) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<signed int>::min();
+    Int max = std::numeric_limits<signed int>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(signed int), 0, 0, self);
-      return static_cast<signed int>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ signed int casting failed");
   }
 
   operator unsigned int() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     unsigned int stack;
-    ::mpz_init2(min, (sizeof(unsigned int) * 8));
-    ::mpz_init2(max, (sizeof(unsigned int) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<unsigned int>::min();
+    Int max = std::numeric_limits<unsigned int>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(unsigned int), 0, 0, self);
-      return static_cast<unsigned int>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ unsigned int casting failed");
   }
 
   operator signed long() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     signed long stack;
-    ::mpz_init2(min, (sizeof(signed long) * 8));
-    ::mpz_init2(max, (sizeof(signed long) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<signed long>::min();
+    Int max = std::numeric_limits<signed long>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(signed long), 0, 0, self);
-      return static_cast<signed long>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ signed long casting failed");
   }
 
   operator unsigned long() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     unsigned long stack;
-    ::mpz_init2(min, (sizeof(unsigned long) * 8));
-    ::mpz_init2(max, (sizeof(unsigned long) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<unsigned long>::min();
+    Int max = std::numeric_limits<unsigned long>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(unsigned long), 0, 0, self);
-      return static_cast<unsigned long>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ unsigned long casting failed");
   }
@@ -348,34 +320,30 @@ public:
 #if (QUIRINUS_FEATURE_LONGLONG)
   operator signed long long() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     signed long long stack;
-    ::mpz_init2(min, (sizeof(signed long long) * 8));
-    ::mpz_init2(max, (sizeof(signed long long) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<signed long long>::min();
+    Int max = std::numeric_limits<signed long long>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(signed long long), 0, 0, self);
-      return static_cast<signed long long>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ signed long long casting failed");
   }
 
   operator unsigned long long() const
   {
-    mpz_t min;
-    mpz_t max;
     size_t count;
     unsigned long long stack;
-    ::mpz_init2(min, (sizeof(unsigned long long) * 8));
-    ::mpz_init2(max, (sizeof(unsigned long long) * 8));
-    if ((::mpz_cmp(self, min) >= 0)
-    ||  (::mpz_cmp(self, min) <= 0))
+    Int min = std::numeric_limits<unsigned long long>::min();
+    Int max = std::numeric_limits<unsigned long long>::max();
+    if ((::mpz_cmp(self, min.self) >= 0)
+    ||  (::mpz_cmp(self, max.self) <= 0))
     {
       ::mpz_export(&stack, &count, 0, sizeof(unsigned long long), 0, 0, self);
-      return static_cast<unsigned long long>(stack);
+      return (stack * mpz_sgn(self));
     }
     throw CastError("C++ unsigned long long casting failed");
   }
@@ -434,18 +402,6 @@ public:
     ::mpz_mod(result.self, lhs.self, rhs.self);
     return result;
   }
-
-  friend inline Bytes
-  operator*(const Bytes& object, Int count);
-
-  friend inline Bytes
-  operator*(Int count, const Bytes& object);
-
-  friend inline Unicode
-  operator*(const Unicode& object, Int count);
-
-  friend inline Unicode
-  operator*(Int count, const Unicode& object);
 
 
   // Logical functions

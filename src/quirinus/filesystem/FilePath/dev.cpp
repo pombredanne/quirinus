@@ -19,12 +19,13 @@ FilePath::dev() const
     throw SystemError(state);
   return buffer.st_dev;
 #else
-  int32_t state;
+  DWORD state = 0;
+  DWORD attributes = 0;
   struct __stat64 buffer;
   if (self_api == API::WINWIDE)
   {
     attributes = ::GetFileAttributesW(*this);
-    state = ::_wstat64(path, &buffer);
+    state = ::_wstat64(*this, &buffer);
   }
   else
   {

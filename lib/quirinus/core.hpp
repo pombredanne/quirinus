@@ -12,5 +12,6 @@
 #include "core/pointers.hpp"
 #include "core/types.hpp"
 #include "core/static.hpp"
+#include "core/system.hpp"
 #include "core/unicode.hpp"
 #endif // QUIRINUS_CORE_HPP

@@ -6,10 +6,10 @@
 #ifndef QUIRINUS_SYSTEM_BYTEORDER_HPP
 #define QUIRINUS_SYSTEM_BYTEORDER_HPP
 namespace quirinus {
-namespace system {
 
 
-Int byteorder()
+inline Int
+byteorder()
 {
   union {
     uint32_t code;
@@ -19,6 +19,5 @@ Int byteorder()
 }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_SYSTEM_BYTEORDER_HPP

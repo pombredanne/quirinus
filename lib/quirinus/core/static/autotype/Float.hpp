@@ -8,11 +8,13 @@
 namespace quirinus {
 
 
+// Float type
 template <>
 struct autotype<Float, Float>
 { typedef Float type; };
 
 
+// bool type
 template <>
 struct autotype<Float, bool>
 { typedef Float type; };
@@ -22,6 +24,7 @@ struct autotype<bool, Float>
 { typedef Float type; };
 
 
+// signed char type
 template <>
 struct autotype<Float, signed char>
 { typedef Float type; };
@@ -31,6 +34,7 @@ struct autotype<signed char, Float>
 { typedef Float type; };
 
 
+// unsigned char type
 template <>
 struct autotype<Float, unsigned char>
 { typedef Float type; };
@@ -40,6 +44,7 @@ struct autotype<unsigned char, Float>
 { typedef Float type; };
 
 
+// signed short type
 template <>
 struct autotype<Float, signed short>
 { typedef Float type; };
@@ -49,6 +54,7 @@ struct autotype<signed short, Float>
 { typedef Float type; };
 
 
+// unsigned short type
 template <>
 struct autotype<Float, unsigned short>
 { typedef Float type; };
@@ -58,6 +64,7 @@ struct autotype<unsigned short, Float>
 { typedef Float type; };
 
 
+// signed int type
 template <>
 struct autotype<Float, signed int>
 { typedef Float type; };
@@ -67,6 +74,7 @@ struct autotype<signed int, Float>
 { typedef Float type; };
 
 
+// unsigned int type
 template <>
 struct autotype<Float, unsigned int>
 { typedef Float type; };
@@ -76,6 +84,7 @@ struct autotype<unsigned int, Float>
 { typedef Float type; };
 
 
+// signed long type
 template <>
 struct autotype<Float, signed long>
 { typedef Float type; };
@@ -85,6 +94,7 @@ struct autotype<signed long, Float>
 { typedef Float type; };
 
 
+// unsigned long type
 template <>
 struct autotype<Float, unsigned long>
 { typedef Float type; };
@@ -95,6 +105,7 @@ struct autotype<unsigned long, Float>
 
 
 #if (QUIRINUS_FEATURE_LONGLONG)
+// signed long long type
 template <>
 struct autotype<Float, signed long long>
 { typedef Float type; };
@@ -104,6 +115,7 @@ struct autotype<signed long long, Float>
 { typedef Float type; };
 
 
+// unsigned long long type
 template <>
 struct autotype<Float, unsigned long long>
 { typedef Float type; };
@@ -114,6 +126,7 @@ struct autotype<unsigned long long, Float>
 #endif // QUIRINUS_FEATURE_LONGLONG
 
 
+// float type
 template <>
 struct autotype<Float, float>
 { typedef Float type; };
@@ -123,6 +136,7 @@ struct autotype<float, Float>
 { typedef Float type; };
 
 
+// double type
 template <>
 struct autotype<Float, double>
 { typedef Float type; };
@@ -132,6 +146,7 @@ struct autotype<double, Float>
 { typedef Float type; };
 
 
+// mpz_t type
 template <>
 struct autotype<Float, mpz_t>
 { typedef Float type; };
@@ -141,6 +156,7 @@ struct autotype<mpz_t, Float>
 { typedef Float type; };
 
 
+// mpfr_t type
 template <>
 struct autotype<Float, mpfr_t>
 { typedef Float type; };
@@ -150,6 +166,7 @@ struct autotype<mpfr_t, Float>
 { typedef Float type; };
 
 
+// Int type
 template <>
 struct autotype<Float, Int>
 { typedef Float type; };

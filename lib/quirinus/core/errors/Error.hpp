@@ -15,11 +15,11 @@ public:
   {}
 
   Error()
-  : std::runtime_error(NULL)
+  : std::runtime_error("")
   {}
 
 
-  // Message function
+  // Mesaage functions
   virtual const char*
   what() const throw() = 0;
 };

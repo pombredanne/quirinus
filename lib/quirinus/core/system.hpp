@@ -15,8 +15,8 @@
 #include "system/encoding_locale.hpp"
 #include "system/encoding_stderr.hpp"
 #include "system/encoding_stdin.hpp"
+#include "system/env.hpp"
 #include "system/encoding_stdout.hpp"
 #include "system/platform.hpp"
 #include "system/system.hpp"
-#include "system/wordsize.hpp
 #endif // QUIRINUS_CORE_SYSTEM_HPP

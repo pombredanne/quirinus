@@ -16,7 +16,7 @@ u32_decode(const bytechar* encptr,
            size_t& declen,
            size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   unicode* tempptr;
   union codeconv {
     unicode code;
@@ -26,8 +26,8 @@ u32_decode(const bytechar* encptr,
   const bytechar* tail = (iter + enclen);
 
   // Allocate memory.
-  state = quirinus::u32_mbslen(encptr, enclen, declen, offset);
-  if (!!state)
+  state = u32_mbslen(encptr, enclen, declen, offset);
+  if (state != UNICODE_STATE_SUCCESS)
     return state;
   decptr = tempptr = new unicode[declen];
 

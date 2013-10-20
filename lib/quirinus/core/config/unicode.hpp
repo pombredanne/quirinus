@@ -31,13 +31,13 @@
       #define UNICODE_WCHAR_SIZE 2
     #endif
   #elif defined(__WCHAR_MAX__)
-    #if (__WCHAR_MAX__ > 0x10000)
+    #if (__WCHAR_MAX__ > 0xFFFF)
       #define UNICODE_WCHAR_SIZE 4
     #else
       #define UNICODE_WCHAR_SIZE 2
     #endif
   #else
-    #if (WCHAR_MAX > 0x10000)
+    #if (WCHAR_MAX > 0xFFFF)
       #define UNICODE_WCHAR_SIZE 4
     #else
       #define UNICODE_WCHAR_SIZE 2
@@ -45,7 +45,12 @@
   #endif
 #endif
 
+
 // Type definitions
+namespace quirinus {
+
+
+// Character types
 typedef uint8_t bytechar;
 #if (QUIRINUS_FEATURE_CXX11)
 typedef char16_t widechar;
@@ -54,11 +59,20 @@ typedef char32_t unicode;
 typedef uint16_t widechar;
 typedef uint32_t unicode;
 #endif
+
+// Vector types
 typedef std::vector<char> charstack;
 typedef std::vector<wchar_t> wcharstack;
 typedef std::vector<bytechar> bytecharstack;
 typedef std::vector<widechar> widecharstack;
 typedef std::vector<unicode> unicodestack;
 
+// Stream types
+typedef std::basic_istream< char, std::char_traits<char> > icharstream;
+typedef std::basic_istream< char, std::char_traits<char> > iwcharstream;
+typedef std::basic_ostream< char, std::char_traits<char> > ocharstream;
+typedef std::basic_ostream< wchar_t, std::char_traits<wchar_t> > owcharstream;
 
+
+} // namespace quirinus
 #endif // QUIRINUS_CORE_CONFIG_UNICODE_HPP

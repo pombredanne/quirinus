@@ -16,15 +16,15 @@ u8_encode(const unicode* decptr,
           size_t& enclen,
           size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   unicode code;
   bytechar* tempptr;
   const unicode* iter;
   const unicode* tail;
 
   // Reserve memory.
-  state = quirinus::u8_ucslen(decptr, declen, enclen, offset);
-  if (!!state)
+  state = u8_ucslen(decptr, declen, enclen, offset);
+  if (state != UNICODE_STATE_SUCCESS)
     return state;
   encptr = tempptr = new bytechar[enclen];
 

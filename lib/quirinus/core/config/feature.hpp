@@ -17,7 +17,7 @@
 #endif
 
 // C99 long long type
-#if !defined(QUIRINUS_FEATURE_BIGINT)
+#if !defined(QUIRINUS_FEATURE_LONGLONG)
   #if defined(_POSIX_V6_ILP32_OFFBIG) \
   || defined(_POSIX_V6_LPBIG_OFFBIG) \
   || defined(_POSIX_V6_LP64_OFF64) \
@@ -33,6 +33,7 @@
   || defined(__DECC) \
   || defined(_CRAYC) \
   || defined(_LONG_LONG) \
+  || defined(LLONG_MAX) \
   || defined(ULLONG_MAX)
     #define QUIRINUS_FEATURE_LONGLONG 1
   #else
@@ -93,6 +94,17 @@
     #define QUIRINUS_FEATURE_LFS 1
   #else
     #define QUIRINUS_FEATURE_LFS 0
+  #endif
+#endif
+
+
+// POSIX file system
+#if !defined(QUIRINUS_FEATURE_POSIX)
+  #if defined(QUIRINUS_PLATFORM_UNIX) \
+  || defined(QUIRINUS_PLATFORM_BSD)
+    #define QUIRINUS_FEATURE_POSIX 1
+  #else
+    #define QUIRINUS_FEATURE_POSIX 0
   #endif
 #endif
 

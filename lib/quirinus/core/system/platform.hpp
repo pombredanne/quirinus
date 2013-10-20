@@ -6,15 +6,12 @@
 #ifndef QUIRINUS_CORE_SYSTEM_PLATFORM_HPP
 #define QUIRINUS_CORE_SYSTEM_PLATFORM_HPP
 namespace quirinus {
-namespace system {
 
 
-Bytes platform()
-{
-  return Bytes(QUIRINUS_PLATFORM);
-}
+inline Bytes
+platform()
+{ return Bytes(QUIRINUS_PLATFORM); }
 
 
-} // namespace system
 } // namespace quirinus
 #endif // QUIRINUS_CORE_SYSTEM_PLATFORM_HPP

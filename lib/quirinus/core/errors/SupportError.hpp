@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~SupportError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   SupportError()
   : self_message(NULL)

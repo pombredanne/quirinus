@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~MemoryError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   MemoryError()
   : self_message(NULL)

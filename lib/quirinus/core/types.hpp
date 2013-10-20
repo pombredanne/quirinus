@@ -15,18 +15,4 @@
 #include "types/Float.hpp"
 #include "types/Bytes.hpp"
 #include "types/Unicode.hpp"
-namespace quirinus {
-
-
-template <typename TYPE>
-std::ostream&
-operator<<(std::ostream& sstream,
-           const Object& object)
-{
-  sstream << (const char*)(object.repr());
-  return sstream;
-}
-
-
-} // namespace quirinus
 #endif // QUIRINUS_CORE_TYPES_HPP

@@ -3,8 +3,8 @@
  * @copyright GNU General Public License v3.0+
  */
 
-#ifndef QUIRINUS_CORE_CONFIG_FEATURE_HPP
-#define QUIRINUS_CORE_CONFIG_FEATURE_HPP
+#ifndef QUIRINUS_CORE_CONFIG_ARCH_HPP
+#define QUIRINUS_CORE_CONFIG_ARCH_HPP
 
 
 #if defined(__alpha__) \
@@ -170,4 +170,4 @@
 #endif
 
 
-#endif // QUIRINUS_CORE_CONFIG_FEATURE_HPP
+#endif // QUIRINUS_CORE_CONFIG_ARCH_HPP

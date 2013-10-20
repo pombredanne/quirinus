@@ -11,7 +11,7 @@ Int
 FilePath::ino() const
 {
 #if (QUIRINUS_FEATURE_POSIX)
-  int32_t state;
+  int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
   state = (!state) ? 0 : errno;

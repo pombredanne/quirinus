@@ -26,6 +26,9 @@ public:
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
 public:
+  typedef unicodestack::iterator iterator;
+  typedef unicodestack::const_iterator const_iterator;
+public:
   ~Unicode()
   {}
 
@@ -101,13 +104,13 @@ public:
   {
     if (!object)
       throw MemoryError("null pointer access");
-    int state;
+    int state = 0;
     size_t offset = 0;
     size_t declen = 0;
     unicode* decptr = NULL;
     state = u8_decode(object, len, decptr, declen, offset);
-    if (state != UNICODE_STATE_SUCCESS) {}
-      // throw DecodeError();
+    if (state != UNICODE_STATE_SUCCESS)
+      throw DecodeError(state, offset, "UTF-8");
     self.reserve(declen);
     for (size_t i = 0; i < declen; ++i)
       self.push_back(decptr[i]);
@@ -118,15 +121,15 @@ public:
   {
     if (!object)
       throw MemoryError("null pointer access");
-    int state;
-    size_t offset;
-    size_t declen;
-    unicode* decptr;
-    const size_t xlen = (len * 2);
-    const bytechar* xptr = reinterpret_cast<const bytechar*>(object);
-    state = u16_decode(xptr, xlen, decptr, declen, offset);
-    if (state != UNICODE_STATE_SUCCESS) {}
-      // throw EncodeError();
+    int state = 0;
+    size_t offset = 0;
+    size_t declen = 0;
+    unicode* decptr = NULL;
+    const size_t enclen = (len * 2);
+    const bytechar* encptr = reinterpret_cast<const bytechar*>(object);
+    state = u16_decode(encptr, enclen, decptr, declen, offset);
+    if (state != UNICODE_STATE_SUCCESS)
+      throw DecodeError(state, offset, "UTF-16");
     self.reserve(declen);
     for (size_t i = 0; i < declen; ++i)
       self.push_back(decptr[i]);
@@ -207,9 +210,7 @@ public:
 
   // Cast functions
   operator const unicode*() const
-  {
-    return &self[0];
-  }
+  { return reinterpret_cast<const unicode*>(&self[0]); }
 
 
   // Comparison functions
@@ -312,16 +313,79 @@ public:
 
 
   // Other functions
+  /**
+   * @brief 
+   */
+  inline iterator
+  begin()
+  { return self.begin(); }
+
+
+  /**
+   * @brief 
+   */
+  inline const_iterator
+  begin() const
+  { return self.begin(); }
+
+
+  /**
+   * @brief 
+   */
+  inline iterator
+  end()
+  { return self.end(); }
+
+
+  /**
+   * @brief 
+   */
+  inline const_iterator
+  end() const
+  { return self.end(); }
+
+
+  /**
+   * @brief Return string length.
+   */
   inline Int
   length() const
+  { return self.size(); }
+
+
+  /**
+   * @brief Return null terminated string.
+   * @WARNING Allocated memory must be freed using delete[] statement.
+   */
+  inline unicode*
+  nullstr() const
   {
-    return self.size();
+    unicodestack::const_iterator iter = self.begin();
+    unicodestack::const_iterator tail = self.end();
+    size_t size = self.size();
+    unicode* buffer = new unicode[size + 1];
+    for (size_t i = 0; iter < tail; ++iter, ++i)
+      buffer[i] = *iter;
+    buffer[size] = 0;
+    return buffer;
   }
 
+
+  /**
+   * @brief Check if null character occurs.
+   */
   inline Bool
   nullcheck() const
   {
-    return (std::find(self.begin(), self.end(), 0) != self.end());
+    unicodestack::const_iterator iter = self.begin();
+    unicodestack::const_iterator tail = self.end();
+    while (iter < tail)
+    {
+      if (*iter == 0)
+        return true;
+      ++iter;
+    }
+    return false;
   }
 };
 

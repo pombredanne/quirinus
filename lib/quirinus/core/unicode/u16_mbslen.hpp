@@ -14,7 +14,7 @@ u16_mbslen(const bytechar* iter,
            size_t& declen,
            size_t& offset)
 {
-  int state;
+  int state = UNICODE_STATE_SUCCESS;
   const bytechar* tail;
   tail = (iter + enclen);
   union codeconv {
@@ -25,7 +25,6 @@ u16_mbslen(const bytechar* iter,
   // Reset variables.
   offset = 0;
   declen = 0;
-  state = UNICODE_STATE_SUCCESS;
 
   // Check null pointer.
   if (iter == NULL)
@@ -57,28 +56,28 @@ u16_mbslen(const bytechar* iter,
   table = ((byteorder_data == byteorder_system) ? ltable : btable);
 
   // Calculate length.
-  byte count;
+  byte count = 0;
+  widechar code = 0;
   while (iter < tail)
   {
     codeconv.bytes[0] = iter[table[0]];
     codeconv.bytes[1] = iter[table[1]];
-
-    // Normal code point.
-    if ((codeconv.code & 0xF800) != 0xD800)
-      count = 2;
+    code = codeconv.code;
+    count = 2;
 
     // Surrogate pair.
-    else if ((codeconv.code & 0x0400) == 0)
+    if ((code >= 0xD800) && (code <= 0xDBFF))
     {
       codeconv.bytes[0] = iter[(table[0] + 2)];
       codeconv.bytes[1] = iter[(table[1] + 2)];
-      if ((codeconv.code & 0xFC00) != 0xDC00)
+      code = codeconv.code;
+      if (!((code >= 0xDC00) && (code <= 0xDFFF)))
         state = UNICODE_STATE_SURROGATE;
       count = 4;
     }
 
     // Isolated surrogate.
-    else
+    else if ((code >= 0xDC00) && (code <= 0xDFFF))
       state = UNICODE_STATE_ISOLATED;
 
     // Truncated sequence.

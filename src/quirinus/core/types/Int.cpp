@@ -21,8 +21,6 @@ Int::repr(const Int& base) const
   pointer = ::mpz_get_str(NULL, base, self);
   Bytes result(pointer);
   size_t len = strlen(pointer);
-  std::cout << pointer << std::endl;
-  std::cout << &result.self[0] << std::endl;
   mp_free_str(pointer, ++len);
   return result;
 }

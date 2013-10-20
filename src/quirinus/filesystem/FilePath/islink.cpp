@@ -11,7 +11,7 @@ Bool
 FilePath::islink() const
 {
 #if (QUIRINUS_FEATURE_POSIX)
-  int state;
+  int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
   return ((state == 0) && ((buffer.st_mode & S_IFMT) == S_IFLNK));

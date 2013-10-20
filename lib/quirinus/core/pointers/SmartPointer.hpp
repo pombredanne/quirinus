@@ -110,14 +110,7 @@ public:
       if (pointer)
       {
         if (!self)
-        {
-          try { self = new size_t(1); }
-          catch (const std::bad_alloc&)
-          {
-            delete pointer;
-            // throw MemoryError("smart pointer ");
-          }
-        }
+          self = new size_t(1);
         else
           ++(*self);
       }
@@ -145,9 +138,7 @@ private:
   Counter self_counter;
 public:
   ~SmartPointer()
-  {
-    this->release();
-  }
+  { this->release(); }
 
   SmartPointer()
   : self_pointer(NULL)
@@ -157,17 +148,13 @@ public:
   SmartPointer(CLASS* pointer)
   : self_pointer(NULL)
   , self_counter()
-  {
-    this->acquire(pointer);
-  }
+  { this->acquire(pointer); }
 
   template <typename TYPE>
   SmartPointer(TYPE* pointer)
   : self_pointer(NULL)
   , self_counter()
-  {
-    this->acquire(static_cast<CLASS*>(pointer));
-  }
+  { this->acquire(static_cast<CLASS*>(pointer)); }
 
   SmartPointer(const NullPointer&)
   : self_pointer(NULL)
@@ -179,8 +166,7 @@ public:
   , self_counter(object.self_counter)
   {
     if ((!object.self_pointer) || (object.self_counter))
-      // throw MemoryError("allocation during smart pointer copying");
-      throw;
+      throw MemoryError("allocation during smart pointer copying");
     this->acquire(object.self_pointer);
   }
 
@@ -190,23 +176,18 @@ public:
   , self_pointer(NULL)
   {
     if ((!object.self_pointer) || (object.self_counter))
-      // throw MemoryError("allocation during smart pointer copying");
-      throw;
+      throw MemoryError("allocation during smart pointer copying");
     this->acquire(static_cast<CLASS*>(object.self_pointer));
   }
 
 
   // Cast functions
   inline operator bool() const
-  {
-    return !!self_counter;
-  }
+  { return !!self_counter; }
 
   template <typename TYPE>
   inline operator TYPE*() const
-  {
-    return static_cast<CLASS*>(self_pointer);
-  }
+  { return static_cast<CLASS*>(self_pointer); }
 
 
   // Swap function
@@ -300,9 +281,7 @@ public:
 
   static inline int
   cmp(const NullPointer&, const SmartPointer<CLASS>& object)
-  {
-    return ((!object) ? 0 : +1);
-  }
+  { return ((!object) ? 0 : +1); }
 
   template <typename TYPE>
   static inline int
@@ -333,86 +312,62 @@ public:
   template <typename TYPE>
   friend inline bool
   operator<(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) < 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) < 0); }
 
   template <typename TYPE>
   friend inline bool
   operator<(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) < 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) < 0); }
 
   template <typename TYPE>
   friend inline bool
   operator<=(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) <= 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) <= 0); }
 
   template <typename TYPE>
   friend inline bool
   operator<=(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) <= 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) <= 0); }
 
   template <typename TYPE>
   friend inline bool
   operator==(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) == 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) == 0); }
 
   template <typename TYPE>
   friend inline bool
   operator==(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) == 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) == 0); }
 
   template <typename TYPE>
   friend inline bool
   operator!=(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) != 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) != 0); }
 
   template <typename TYPE>
   friend inline bool
   operator!=(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) != 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) != 0); }
 
   template <typename TYPE>
   friend inline bool
   operator>=(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) >= 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) >= 0); }
 
   template <typename TYPE>
   friend inline bool
   operator>=(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) >= 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) >= 0); }
 
   template <typename TYPE>
   friend inline bool
   operator>(const SmartPointer<CLASS>& lhs, TYPE rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) > 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) > 0); }
 
   template <typename TYPE>
   friend inline bool
   operator>(TYPE lhs, const SmartPointer<CLASS>& rhs)
-  {
-    return (SmartPointer::cmp(lhs, rhs) > 0);
-  }
+  { return (SmartPointer::cmp(lhs, rhs) > 0); }
 
 
   // Special functions
@@ -420,8 +375,7 @@ public:
   operator*() const
   {
     if (!self_pointer)
-      // throw MemoryError("null pointer dereferencing");
-      throw;
+      throw MemoryError("null pointer dereferencing");
     return *self_pointer;
   }
 
@@ -429,8 +383,7 @@ public:
   operator->() const
   {
     if (!self_pointer)
-      // throw MemoryError("null pointer dereferencing");
-      throw;
+      throw MemoryError("null pointer dereferencing");
     return self_pointer;
   }
 
@@ -438,43 +391,32 @@ public:
   // Other functions
   inline CLASS*
   pointer() const
-  {
-    return self_pointer;
-  }
+  { return self_pointer; }
 
   inline size_t
   count() const
-  {
-    return self_counter;
-  }
+  { return self_counter; }
 
   inline void
   reset()
-  {
-    this->release();
-  }
+  { this->release(); }
 
   inline void
   reset(CLASS* pointer)
   {
     if (!pointer || (self_pointer != pointer))
-      // throw MemoryError("automatical smart pointer reset");
-      throw;
+      throw MemoryError("automatic smart pointer reset");
     this->release();
     this->acquire(pointer);
   }
 
   inline bool
   valid() const
-  {
-    return (self_pointer && self_counter);
-  }
+  { return (self_pointer && self_counter); }
 
   inline bool
   unique() const
-  {
-    return (self_counter == 1);
-  }
+  { return (self_counter == 1); }
 private:
   inline void
   acquire(CLASS* pointer)

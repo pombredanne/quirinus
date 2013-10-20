@@ -5,234 +5,173 @@
 
 #ifndef QUIRINUS_FILESYSTEM_FILEPATH_HPP
 #define QUIRINUS_FILESYSTEM_FILEPATH_HPP
-#include "Path.hpp"
+#include "API.hpp"
 namespace quirinus {
 namespace filesystem {
 
 
-class FilePath: public Path
+class FilePath: public Object
 {
-public:
-  class API: public Object
-  {
-  public:
-    enum api_type
-    {
-      POSIX,
-      WINANSI,
-      WINWIDE
-    };
-    api_type self;
-  public:
-    ~API()
-    {}
-
-    API()
-#if (QUIRINUS_FEATURE_POSIX)
-    : self(API::POSIX)
-#else
-    : self(API::WINANSI)
-#endif
-    {}
-
-    API(const API& api)
-    : self(api.self)
-    {}
-
-    API(const api_type& api)
-    : self(api)
-    {}
-
-
-    // Swap function
-    friend inline void
-    swap(API& lhs, API& rhs)
-    {
-      using std::swap;
-      swap(lhs.self, rhs.self);
-    }
-
-
-    // Assignement function
-    inline API&
-    operator=(API path)
-    {
-      swap(*this, path);
-      return *this;
-    }
-
-
-    // Virtual functions
-    Bytes repr() const
-    {
-      if (self == WINANSI)
-        return "WinANSI";
-      else if (self == WINWIDE)
-        return "WinWIDE";
-      return "POSIX";
-    }
-
-
-    // Comparison functions
-    friend inline Bool
-    operator==(const API& lhs, const API& rhs)
-    {
-      return (lhs.self == rhs.self);
-    }
-
-    friend inline Bool
-    operator!=(const API& lhs, const API& rhs)
-    {
-      return (lhs.self != rhs.self);
-    }
-  };
 private:
   API self_api;
   void* self_path;
 public:
+  Int mode() const;
+  Int dev() const;
+  Int ino() const;
+  Int uid() const;
+  Int gid() const;
+  Int links() const;
+  Int size() const;
+  Int atime() const;
+  Int ctime() const;
+  Int mtime() const;
+public:
+  Bool exists() const;
+  Bool lexists() const;
+  Bool isblock() const;
+  Bool isdevice() const;
+  Bool isdir() const;
+  Bool isfifo() const;
+  Bool isfile() const;
+  Bool islink() const;
+  Bool issocket() const;
+public:
   ~FilePath()
   {
-    if (self_api == API::WINWIDE)
-      delete[] static_cast<char*>(self_path);
-    delete[] static_cast<wchar_t*>(self_path);
+    delete[] static_cast<byte*>(self_path);
   }
 
   FilePath(const FilePath& object)
-  : self_api(object.self_api)
-  , self_path(NULL)
   {
-    if (object.self_api == API::WINWIDE)
-    {
-      const wchar_t* path = \
-        reinterpret_cast<const wchar_t*>(object.self_path);
-      self_path = quirinus::nullstrdup(path);
-    }
+    size_t size = 0;
+    byte* buffer = NULL;
+    self_api = object.self_api;
+    const void* pointer = object.self_path;
+    if (self_api == filesystem::API::WINWIDE)
+      size = (nullstrlen(static_cast<const wchar_t*>(pointer)) * 2);
     else
+      size = nullstrlen(static_cast<const char*>(pointer));
+    size_t append = ((self_api == filesystem::API::WINWIDE) ? 2 : 1);
+    buffer = new byte[size + append];
+    ::memcpy(buffer, pointer, size);
+    for (size_t i = 0; i < append; ++i)
+      buffer[size + i] = 0;
+    self_path = buffer;
+  }
+
+  FilePath(const char* str)
+  : self_api()
+  , self_path(NULL)
+  {
+    Bytes path(str);
+    FilePath stack(path);
+    swap(*this, stack);
+  }
+
+  FilePath(const wchar_t* str)
+  : self_api()
+  , self_path(NULL)
+  {
+    Unicode path(str);
+    FilePath stack(path);
+    swap(*this, stack);
+  }
+
+  FilePath(const bytechar* str)
+  : self_api()
+  , self_path(NULL)
+  {
+    Bytes path(str);
+    FilePath stack(path);
+    swap(*this, stack);
+  }
+
+  FilePath(const widechar* str)
+  : self_api()
+  , self_path(NULL)
+  {
+    Unicode path(str);
+    FilePath stack(path);
+    swap(*this, stack);
+  }
+
+  FilePath(const unicode* str)
+  : self_api()
+  , self_path(NULL)
+  {
+    Unicode path(str);
+    FilePath stack(path);
+    swap(*this, stack);
+  }
+
+  FilePath(const Bytes& str)
+  : self_api()
+  , self_path(NULL)
+  {
+    if (str.nullcheck())
+      throw ValueError("null character occured");
+#if (QUIRINUS_FEATURE_POSIX)
+    size_t size = str.length();
+    self_api = filesystem::API::POSIX;
+    Bytes::const_iterator iter = str.begin();
+#else
+    Bytes stack = str;
+    self_api = filesystem::API::WINANSI;
+
+    // Check for UTF-8 encoding.
+    try
     {
-      const char* path = \
-        reinterpret_cast<const char*>(object.self_path);
-      self_path = quirinus::nullstrdup(path);
+      stack = codecs::convert(stack, "UTF-8", "UTF-16");
+      self_api = filesystem::API::WINWIDE;
     }
-  }
+    catch (...) { /* pass */ }
 
-#if (QUIRINUS_FEATURE_CXX11)
-  FilePath(const FilePath&& object)
-  : self_api(object.self_api)
-  , self_path(NULL)
-  {
-    swap(*this, object);
-  }
-#endif
-
-  FilePath(const char* object)
-#if (QUIRINUS_FEATURE_POSIX)
-  : self_api(API::POSIX)
-#else
-  : self_api(API::WINANSI)
-#endif
-  , self_path(NULL)
-  {
-    Bytes path(object);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const wchar_t* object)
-#if (!QUIRINUS_FEATURE_POSIX)
-  : self_api(API::POSIX)
-#else
-  : self_api(API::WINWIDE)
-#endif
-  , self_path(NULL)
-  {
-    Unicode path(object);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const bytechar* object)
-#if (QUIRINUS_FEATURE_POSIX)
-  : self_api(API::POSIX)
-#else
-  : self_api(API::WINANSI)
-#endif
-  , self_path(NULL)
-  {
-    Bytes path(object);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const widechar* object)
-#if (QUIRINUS_FEATURE_POSIX)
-  : self_api(API::POSIX)
-#else
-  : self_api(API::WINWIDE)
-#endif
-  , self_path(NULL)
-  {
-    Unicode path(object);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const unicode* object)
-#if (QUIRINUS_FEATURE_POSIX)
-  : self_api(API::POSIX)
-#else
-  : self_api(API::WINWIDE)
-#endif
-  , self_path(NULL)
-  {
-    Bytes path(object);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const Bytes& path)
-  : self_path(NULL)
-  {
-    if (path.nullcheck())
-#if (QUIRINUS_FEATURE_POSIX)
-    const char* str = path;
-    self_api = API::POSIX;
-    self_path = nullstrdup(str);
-#else
-    Unicode upath;
-    bool convert = true;
-    try { upath = codecs::decode(path, "UTF-8"); }
-    catch (const DecodeError&)
+    // Check for UTF-16 encoding.
+    try
     {
-      try { upath = codecs::decode(path, "UTF-16"); }
-      catch (const DecodeError&) { convert = false; }
+      codecs::decode(stack, "UTF-16");
+      self_api = filesystem::API::WINWIDE;
     }
-    if (convert)
-    {
-      FilePath stack(upath);
-      swap(*this, stack);
-    }
-    else
-    {
-      const char* str = path;
-      self_api = API::WINANSI;
-      self_path = nullstrdup(path);
-    }
+    catch (...) { /* pass */ }
+
+    // Initialize members.
+    size_t size = stack.length();
+    Bytes::const_iterator iter = stack.begin();
 #endif
+    byte* buffer = NULL;
+    const bytechar* pointer = &(*iter);
+    size_t append = ((self_api == filesystem::API::WINWIDE) ? 2 : 1);
+    buffer = new byte[size + append];
+    ::memcpy(buffer, pointer, size);
+    for (size_t i = 0; i < append; ++i)
+      buffer[size + i] = 0;
+    self_path = buffer;
   }
 
-  FilePath(const Unicode& path)
-  : self_path(NULL)
+  FilePath(const Unicode& str)
+  : self_api()
+  , self_path(NULL)
   {
+    if (str.nullcheck())
+      throw ValueError("null character occured");
 #if (QUIRINUS_FEATURE_POSIX)
-    self_api = API::POSIX;
-    Bytes encoding = system::encoding_filesystem();
-    self_path = nullstrdup(codecs::encode(path, encoding));
+    self_api = filesystem::API::POSIX;
 #else
-    self_api = API::WINWIDE;
-    const unicode* str = path;
-    Bytes bpath = codecs::encode(path, "UTF-16");
-    self_path = nullstrdup(path);
+    self_api = filesystem::API::WINWIDE;
 #endif
+    byte* buffer = NULL;
+    Bytes encoding = encoding_filesystem();
+    Bytes stack = codecs::encode(str, encoding);
+    size_t size = stack.length();
+    Bytes::const_iterator iter = stack.begin();
+    const bytechar* pointer = &(*iter);
+    size_t append = ((self_api == filesystem::API::WINWIDE) ? 2 : 1);
+    buffer = new byte[size + append];
+    ::memcpy(buffer, pointer, size);
+    for (size_t i = 0; i < append; ++i)
+      buffer[size + i] = 0;
+    self_path = buffer;
   }
 
 
@@ -256,86 +195,63 @@ public:
 
 
   // Cast functions
-  operator const char*() const
+  inline operator const char*() const
   {
+    if (self_api == filesystem::API::WINWIDE)
+      return (static_cast<const char*>(self_path) + 2);
     return static_cast<const char*>(self_path);
   }
 
-  operator const wchar_t*() const
+  inline operator const wchar_t*() const
   {
-    if (self_api == API::WINWIDE)
-      return static_cast<const char*>(self_path);
+    if (self_api == filesystem::API::WINWIDE)
+      return (static_cast<const wchar_t*>(self_path) + 1);
     throw CastError("C++ const wchar_t* casting failed");
   }
 
 
-  // Other functions
-  inline API
-  api() const
+  // Virtual functions
+  inline Bytes
+  repr() const
   {
-    return self_api;
+    try { return cast_unicode().repr(); }
+    catch (const DecodeError& error) { return cast_bytes().repr(); }
   }
 
-  inline Int
-  mode() const;
+  inline Bytes
+  cast_bytes() const
+  {
+    size_t size = 0;
+    const bytechar* path = NULL;
+    if (self_api == filesystem::API::WINWIDE)
+    {
+      size = (nullstrlen(static_cast<const wchar_t*>(self_path)) * 2);
+      path = (static_cast<const bytechar*>(self_path) + 2);
+      size -= 2;
+    }
+    else
+    {
+      size = nullstrlen(static_cast<const char*>(self_path));
+      path = static_cast<const bytechar*>(self_path);
+    }
+    return Bytes(path, size);
+  }
 
-  inline Int
-  ino() const;
+  Unicode
+  cast_unicode() const
+  {
+    Bytes stack = this->cast_bytes();
+    Bytes encoding = encoding_filesystem();
+    return codecs::decode(stack, encoding);
+  }
 
-  inline Int
-  dev() const;
 
-  inline Int
-  rdev() const;
-
-  inline Int
-  nlink() const;
-
-  inline Int
-  uid() const;
-
-  inline Int
-  gid() const;
-
-  inline Int
-  size() const;
-
-  inline Int
-  atime() const;
-
-  inline Int
-  ctime() const;
-
-  inline Int
-  mtime() const;
-
-  inline Bool
-  exists() const;
-
-  inline Bool
-  lexists() const;
-
-  inline Bool
-  isblock() const;
-
-  inline Bool
-  isdevice() const;
-
-  inline Bool
-  isdir() const;
-
-  inline Bool
-  isfifo() const;
-
-  inline Bool
-  isfile() const;
-
-  inline Bool
-  islink() const;
-
-  inline Bool
-  issocket() const;
+  // Filesystem API
+  inline API
+  api() const
+  { return self_api; }
 };
+
 
 } // namespace filesystem
 } // namespace quirinus

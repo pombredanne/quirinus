@@ -7,18 +7,19 @@
 namespace quirinus {
 
 
-std::ostream&
-operator<<(std::ostream& sstream,
-           const NullPointer& object)
+ocharstream&
+operator<<(ocharstream& sstream,
+           const NullPointer&)
 {
   sstream << "null";
   return sstream;
 }
 
 
-template <typename TYPE>
-std::ostream&
-operator<<(std::ostream& sstream,
+// SmartPointer
+template<typename TYPE>
+ocharstream&
+operator<<(ocharstream& sstream,
            const SmartPointer<TYPE>& object)
 {
   const void* pointer;
@@ -31,8 +32,8 @@ operator<<(std::ostream& sstream,
 }
 
 
-std::ostream&
-operator<<(std::ostream& sstream,
+ocharstream&
+operator<<(ocharstream& sstream,
            const Error& object)
 {
   sstream << object.what();
@@ -40,12 +41,14 @@ operator<<(std::ostream& sstream,
 }
 
 
-std::ostream&
-operator<<(std::ostream& sstream,
+ocharstream&
+operator<<(ocharstream& sstream,
            const Object& object)
 {
-  Bytes repr(object.repr());
-  sstream << (const char*)(repr);
+  Bytes repr = object.repr();
+  char* buffer = repr.nullstr();
+  sstream << buffer;
+  delete[] buffer;
   return sstream;
 }
 

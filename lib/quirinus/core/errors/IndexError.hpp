@@ -14,9 +14,7 @@ private:
   char* self_message;
 public:
   ~IndexError() throw()
-  {
-    delete[] self_message;
-  }
+  { delete[] self_message; }
 
   IndexError()
   : self_message(NULL)

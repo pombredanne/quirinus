@@ -119,30 +119,30 @@ typedef unsigned long uint32_t;
 
 
 // 64-bit integer
-#if (QUIRINUS_FEATURE_BIGINT)
+#if (QUIRINUS_FEATURE_LONGLONG)
   #if defined(__GNUC__)
     #if (__WORDSIZE == 64)
       #if !defined(INT64_MIN)
-      #define INT64_MIN -9223372036854775808L
-    #endif
-    #if !defined(INT64_MAX)
-      #define INT64_MAX 9223372036854775807L
-    #endif
-    #if !defined(UINT64_MAX)
-      #define UINT64_MAX 18446744073709551615UL
-    #endif
+        #define INT64_MIN -9223372036854775808L
+      #endif
+      #if !defined(INT64_MAX)
+        #define INT64_MAX 9223372036854775807L
+      #endif
+      #if !defined(UINT64_MAX)
+        #define UINT64_MAX 18446744073709551615UL
+      #endif
 typedef signed long int int64_t;
 typedef unsigned long int uint64_t;
     #else
       #if !defined(INT64_MIN)
-      #define INT64_MIN -9223372036854775808LL
-    #endif
-    #if !defined(INT64_MAX)
-      #define INT64_MAX 9223372036854775807LL
-    #endif
-    #if !defined(UINT64_MAX)
-      #define UINT64_MAX 18446744073709551615ULL
-    #endif
+        #define INT64_MIN -9223372036854775808LL
+      #endif
+      #if !defined(INT64_MAX)
+        #define INT64_MAX 9223372036854775807LL
+      #endif
+      #if !defined(UINT64_MAX)
+        #define UINT64_MAX 18446744073709551615ULL
+      #endif
 __extension__ typedef signed long long int64_t;
 __extension__ typedef unsigned long long uint64_t;
     #endif
@@ -186,8 +186,7 @@ typedef unsigned __int64 uint64_t;
 
 
 // Largest integer
-#if (__GNUC__) \
-&& (__WORDSIZE == 64)
+#if defined(QUIRINUS_FEATURE_LONGLONG)
 typedef int64_t intmax_t;
 typedef uint64_t uintmax_t;
 #else
