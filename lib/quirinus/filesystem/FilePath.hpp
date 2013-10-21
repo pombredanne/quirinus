@@ -6,11 +6,12 @@
 #ifndef QUIRINUS_FILESYSTEM_FILEPATH_HPP
 #define QUIRINUS_FILESYSTEM_FILEPATH_HPP
 #include "API.hpp"
+#include "VirtualPath.hpp"
 namespace quirinus {
 namespace filesystem {
 
 
-class FilePath: public Object
+class FilePath: public Path
 {
 private:
   API self_api;
@@ -211,6 +212,10 @@ public:
 
 
   // Virtual functions
+  inline FilePath*
+  clone() const
+  { return new FilePath(*this); }
+
   inline Bytes
   repr() const
   {
@@ -246,7 +251,7 @@ public:
   }
 
 
-  // Filesystem API
+  // Filesystem functions
   inline API
   api() const
   { return self_api; }

@@ -19,7 +19,7 @@ FilePath::gid() const
     throw SystemError(state);
   return buffer.st_gid;
 #else
-  throw SupportError("Group ID of file owner not available");
+  return 0;
 #endif
 }
 

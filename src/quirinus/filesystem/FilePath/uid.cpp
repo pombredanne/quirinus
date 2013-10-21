@@ -19,7 +19,7 @@ FilePath::uid() const
     throw SystemError(state);
   return buffer.st_uid;
 #else
-  throw SupportError("User ID of file owner not available");
+  return 0;
 #endif
 }
 

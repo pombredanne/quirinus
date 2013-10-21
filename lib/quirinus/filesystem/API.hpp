@@ -73,6 +73,10 @@ public:
 
 
   // Virtual functions
+  inline API*
+  clone() const
+  { return new API(*this); }
+
   inline Bytes
   repr() const
   {

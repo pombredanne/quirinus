@@ -23,8 +23,6 @@ public:
   virtual Int ctime() const = 0;
   virtual Int mtime() const = 0;
 public:
-  virtual Bool exists() const = 0;
-  virtual Bool lexists() const = 0;
   virtual Bool isblock() const = 0;
   virtual Bool isdevice() const = 0;
   virtual Bool isdir() const = 0;

@@ -7,6 +7,15 @@
 #define QUIRINUS_FILESYSTEM_HPP
 #include "core.hpp"
 #include "codecs.hpp"
+
+#if !defined(S_IFLNK)
+  #define S_IFLNK 0120000
+#endif
+
+#if !defined(S_IFSOCK)
+  #define S_IFSOCK 0140000
+#endif
+
 #include "filesystem/Path.hpp"
 #include "filesystem/FilePath.hpp"
 #include "filesystem/VirtualPath.hpp"

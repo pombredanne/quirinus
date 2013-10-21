@@ -213,6 +213,12 @@ public:
   { return reinterpret_cast<const unicode*>(&self[0]); }
 
 
+  // Virtual functions
+  inline Unicode*
+  clone() const
+  { return new Unicode(*this); }
+
+
   // Comparison functions
   static inline int
   cmp(const Unicode& lhs, const Unicode& rhs)

@@ -180,6 +180,12 @@ public:
   }
 
 
+  // Virtual functions
+  inline Float*
+  clone() const
+  { return new Float(*this); }
+
+
   // Comparison functions
   static inline int
   cmp(const Float& lhs, const Float& rhs)

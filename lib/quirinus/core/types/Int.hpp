@@ -350,6 +350,12 @@ public:
 #endif // QUIRINUS_FEATURE_LONGLONG
 
 
+  // Virtual functions
+  inline Int*
+  clone() const
+  { return new Int(*this); }
+
+
   // Comparison functions
   static inline int
   cmp(const Int& lhs, const Int& rhs)

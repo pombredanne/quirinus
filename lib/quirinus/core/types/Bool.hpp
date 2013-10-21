@@ -67,6 +67,12 @@ public:
   { return self; }
 
 
+  // Virtual functions
+  inline Bool*
+  clone() const
+  { return new Bool(*this); }
+
+
   // Logical functions
   friend inline Bool
   operator&(const Bool& lhs, const Bool& rhs)

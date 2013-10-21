@@ -7,6 +7,10 @@ namespace quirinus {
 namespace filesystem {
 
 
+/**
+ * POSIX: ustat(dev()) -> file system
+ * Windows: dev() + 'A' -> disk drive
+ */
 Int
 FilePath::dev() const
 {
@@ -32,9 +36,7 @@ FilePath::dev() const
     attributes = ::GetFileAttributesA(*this);
     state = ::_stat64(*this, &buffer);
   }
-  state |= (attributes == INVALID_FILE_ATTRIBUTES);
-  state = (!state) ? ::GetLastError() : 0;
-  if (!!state)
+  if (attributes == INVALID_FILE_ATTRIBUTES)
     throw SystemError(state);
   return buffer.st_dev;
 #endif

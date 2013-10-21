@@ -19,7 +19,7 @@ FilePath::ino() const
     throw SystemError(state);
   return buffer.st_ino;
 #else
-  throw SupportError("Serial number not available");
+  return 0;
 #endif
 }
 

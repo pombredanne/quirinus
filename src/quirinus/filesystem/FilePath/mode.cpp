@@ -32,9 +32,7 @@ FilePath::mode() const
     attributes = ::GetFileAttributesA(*this);
     state = ::_stat64(*this, &buffer);
   }
-  state |= (attributes == INVALID_FILE_ATTRIBUTES);
-  state = (!state) ? ::GetLastError() : 0;
-  if (!!state)
+  if (attributes == INVALID_FILE_ATTRIBUTES)
     throw SystemError(state);
   buffer.st_mode = 0;
   if ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)

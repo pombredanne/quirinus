@@ -225,6 +225,12 @@ public:
   { return reinterpret_cast<const bytechar*>(&self[0]); }
 
 
+  // Virtual functions
+  inline Bytes*
+  clone() const
+  { return new Bytes(*this); }
+
+
   // Comparison functions
   static inline int
   cmp(const Bytes& lhs, const Bytes& rhs)

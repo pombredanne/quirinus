@@ -19,7 +19,7 @@ FilePath::links() const
     throw SystemError(state);
   return buffer.st_nlink;
 #else
-  throw SupportError("Number of links not available");
+  return 0;
 #endif
 }
 

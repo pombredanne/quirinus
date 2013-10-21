@@ -19,7 +19,7 @@ encoding_locale()
   newlocale = ::strdup(setlocale(LC_ALL, ""));
   buffer = ::strdup(::nl_langinfo(CODESET));
   if (!buffer)
-    throw MemoryError();
+    throw MemoryError("no memory available");
   ::setlocale(LC_ALL, oldlocale);
   Bytes encoding(buffer);
   ::free(oldlocale);

@@ -37,17 +37,13 @@ public:
   : self_code(code)
   , self_message(NULL)
   {
-#if !defined(QUIRINUS_PLATFORM_WINDOWS)
+#if (QUIRINUS_FEATURE_POSIX)
     int32_t state;
     size_t size = 32;
     char* buffer = NULL;
     while (true)
     {
-      try { buffer = new char[size]; }
-      catch (const std::bad_alloc&)
-      {
-        throw MemoryError();
-      }
+      buffer = new char[size];
       for (size_t i = 0; i < size; ++i)
         buffer[i] = 0;
       buffer = ::strerror_r(code, buffer, size);
@@ -55,14 +51,14 @@ public:
       if (state && (errno != ERANGE))
       {
         delete[] buffer;
-        throw MemoryError();
+        throw MemoryError("no memory available");
       }
       if (!state)
         break;
       delete[] buffer;
       size *= 1.5;
     }
-#else // #if defined(QUIRINUS_PLATFORM_WINDOWS)
+#else
     uint16_t lang;
     uint32_t flags;
     char* buffer = NULL;
@@ -83,7 +79,8 @@ public:
     else
     {
       delete[] buffer;
-      throw MemoryError();
+      std::cout << code << std::endl;
+      throw MemoryError("no memory available");;
     }
 #endif
     char* nbuffer = buffer;
