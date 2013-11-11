@@ -5,6 +5,7 @@
 
 namespace quirinus {
 
+
 Float::Float(const Object& object)
 {
   Float stack(object.cast_float());
@@ -103,16 +104,12 @@ Float::repr(const Int& base) const
 
 Bytes
 Float::repr() const
-{
-  return this->repr(10);
-}
+{ return this->repr(10); }
 
 
 Bool
 Float::cast_bool() const
-{
-  return (mpfr_sgn(self) != 0);
-}
+{ return (mpfr_sgn(self) != 0); }
 
 
 Int
@@ -126,22 +123,17 @@ Float::cast_int() const
 
 Float
 Float::cast_float() const
-{
-  return *this;
-}
+{ return *this; }
 
 
 Bytes
 Float::cast_bytes() const
-{
-  return this->repr(10);
-}
+{ return this->repr(10); }
 
 
 Unicode
 Float::cast_unicode() const
-{
-  return this->repr(10);
-}
+{ return this->repr(10); }
+
 
 } // namespace quirinus

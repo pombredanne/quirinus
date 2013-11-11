@@ -13,16 +13,16 @@ namespace filesystem {
 class VirtualPath: public Path
 {
 private:
-  uint64_t self_mode;  // Access mode and file type
-  uint64_t self_dev;   // ID of device containing the file
-  uint64_t self_ino;   // Serial number for the file
-  uint64_t self_uid;   // User ID of file owner
-  uint64_t self_gid;   // Group ID of file owner
-  uint64_t self_links; // Number of links to the file
-  uint64_t self_size;  // Size of the file in bytes
-  uint64_t self_atime; // Last access time of the file
-  uint64_t self_ctime; // Last change time of the file
-  uint64_t self_mtime; // Last modify time of the file
+  Int self_mode;  // Access mode and file type
+  Int self_dev;   // ID of device containing the file
+  Int self_ino;   // Serial number for the file
+  Int self_uid;   // User ID of file owner
+  Int self_gid;   // Group ID of file owner
+  Int self_links; // Number of links to the file
+  Int self_size;  // Size of the file in bytes
+  Int self_atime; // Last access time of the file
+  Int self_ctime; // Last change time of the file
+  Int self_mtime; // Last modify time of the file
 public:
   ~VirtualPath()
   {}
@@ -47,7 +47,7 @@ public:
   VirtualPath(const Path& object)
   {
     const size_t fields = 10;
-    uint64_t** members = new uint64_t*[fields];
+    Int** members = new Int*[fields];
     typedef Int (Path::*MemberFunction)() const;
     MemberFunction* functions = new MemberFunction[fields];
     members[0] = &self_mode;    functions[0] = &Path::mode;
@@ -68,7 +68,7 @@ public:
 
 
   // Swap function
-  friend inline void
+  friend void
   swap(VirtualPath& lhs, VirtualPath& rhs)
   {
     using std::swap;
@@ -86,7 +86,7 @@ public:
 
 
   // Assignment function
-  inline VirtualPath&
+  VirtualPath&
   operator=(VirtualPath object)
   {
     swap(*this, object);
@@ -95,134 +95,134 @@ public:
 
 
   // Virtual functions
-  inline VirtualPath*
+  VirtualPath*
   clone() const
   { return new VirtualPath(*this); }
 
 
   // Filesystem functions
-  inline void
+  void
   mode(const Int& mode)
   { self_mode = mode; }
 
-  inline Int
+  Int
   mode() const
   { return self_mode; }
 
 
-  inline void
+  void
   dev(const Int& dev)
   { self_dev = dev; }
 
-  inline Int
+  Int
   dev() const
   { return self_dev; }
 
 
-  inline void
+  void
   ino(const Int& ino)
   { self_ino = ino; }
 
-  inline Int
+  Int
   ino() const
   { return self_ino; }
 
 
-  inline void
+  void
   uid(const Int& uid)
   { self_uid = uid; }
 
-  inline Int
+  Int
   uid() const
   { return self_uid; }
 
 
-  inline void
+  void
   gid(const Int& gid)
   { self_gid = gid; }
 
-  inline Int
+  Int
   gid() const
   { return self_gid; }
 
 
-  inline void
+  void
   links(const Int& links)
   { self_links = links; }
 
-  inline Int
+  Int
   links() const
   { return self_links; }
 
 
-  inline void
+  void
   size(const Int& size)
   { self_size = size; }
 
-  inline Int
+  Int
   size() const
   { return self_size; }
 
 
-  inline void
+  void
   atime(const Int& atime)
   { self_atime = atime; }
 
-  inline Int
+  Int
   atime() const
   { return self_atime; }
 
 
-  inline void
+  void
   ctime(const Int& ctime)
   { self_ctime = ctime; }
 
-  inline Int
+  Int
   ctime() const
   { return self_ctime; }
 
 
-  inline void
+  void
   mtime(const Int& mtime)
   { self_mtime = mtime; }
 
-  inline Int
+  Int
   mtime() const
   { return self_mtime; }
 
 
-  inline Bool
-  isblock() const
+  Bool
+  is_block() const
   { return ((self_mode & S_IFMT) == S_IFBLK); }
 
 
-  inline Bool
-  isdevice() const
+  Bool
+  is_device() const
   { return ((self_mode & S_IFMT) == S_IFCHR); }
 
 
-  inline Bool
-  isdir() const
+  Bool
+  is_dir() const
   { return ((self_mode & S_IFMT) == S_IFDIR); }
 
 
-  inline Bool
-  isfifo() const
+  Bool
+  is_fifo() const
   { return ((self_mode & S_IFMT) == S_IFIFO); }
 
 
-  inline Bool
-  isfile() const
+  Bool
+  is_file() const
   { return ((self_mode & S_IFMT) == S_IFREG); }
 
 
-  inline Bool
-  islink() const
+  Bool
+  is_link() const
   { return ((self_mode & S_IFMT) == S_IFLNK); }
 
 
-  inline Bool
-  issocket() const
+  Bool
+  is_socket() const
   { return ((self_mode & S_IFMT) == S_IFSOCK); }
 };
 

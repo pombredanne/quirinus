@@ -12,6 +12,14 @@ namespace filesystem {
 class Path: public Object
 {
 public:
+  static const Bytes SEP;
+  static const Bytes ALTSEP;
+  static const Bytes CURDIR;
+  static const Bytes PARDIR;
+  static const Bytes EXTSEP;
+  static const Bytes PATHSEP;
+  static const Bytes DEVNULL;
+public:
   virtual Int mode() const = 0;
   virtual Int ino() const = 0;
   virtual Int dev() const = 0;
@@ -23,13 +31,21 @@ public:
   virtual Int ctime() const = 0;
   virtual Int mtime() const = 0;
 public:
-  virtual Bool isblock() const = 0;
-  virtual Bool isdevice() const = 0;
-  virtual Bool isdir() const = 0;
-  virtual Bool isfifo() const = 0;
-  virtual Bool isfile() const = 0;
-  virtual Bool islink() const = 0;
-  virtual Bool issocket() const = 0;
+  virtual Bool is_block() const = 0;
+  virtual Bool is_device() const = 0;
+  virtual Bool is_dir() const = 0;
+  virtual Bool is_fifo() const = 0;
+  virtual Bool is_file() const = 0;
+  virtual Bool is_link() const = 0;
+  virtual Bool is_socket() const = 0;
+public:
+  static Bytes
+  encoding()
+  {
+    struct quirinus::sysinfo sys;
+    quirinus::sysinfo(&sys);
+    return sys.encoding.filesystem;
+  }
 public:
   virtual ~Path()
   {}

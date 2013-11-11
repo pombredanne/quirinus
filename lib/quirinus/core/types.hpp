@@ -7,12 +7,13 @@
 #define QUIRINUS_CORE_TYPES_HPP
 #include "config.hpp"
 #include "errors.hpp"
-#include "static.hpp"
-#include "unicode.hpp"
+#include "string.hpp"
+#include "template.hpp"
 #include "types/Object.hpp"
 #include "types/Bool.hpp"
 #include "types/Int.hpp"
 #include "types/Float.hpp"
 #include "types/Bytes.hpp"
 #include "types/Unicode.hpp"
+#include "types/Iter.hpp"
 #endif // QUIRINUS_CORE_TYPES_HPP

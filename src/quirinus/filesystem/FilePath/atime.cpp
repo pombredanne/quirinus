@@ -14,9 +14,8 @@ FilePath::atime() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  state = (!state) ? 0 : errno;
-  if (!!state)
-    throw SystemError(state);
+  if (state)
+    throw SystemError(errno);
   return static_cast<time_t>(buffer.st_atime);
 #else
   DWORD state = 0;
@@ -24,9 +23,9 @@ FilePath::atime() const
   FILETIME wintime;
   uint32_t access = GENERIC_READ;
   uint32_t disposition = OPEN_EXISTING;
-  handle = ::CreateFile(*this, access, 0, NULL, disposition, 0, NULL);
-  state = (!handle) ? ::GetLastError() : 0;
-  if (!!state)
+  handle = ::CreateFileW(*this, access, 0, NULL, disposition, 0, NULL);
+  state = ((!handle) ? ::GetLastError() : 0);
+  if (!state)
     throw SystemError(state);
   ::GetFileTime(handle, NULL, &wintime, NULL);
   ::CloseHandle(handle);

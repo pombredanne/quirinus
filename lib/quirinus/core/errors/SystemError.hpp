@@ -38,56 +38,28 @@ public:
   , self_message(NULL)
   {
 #if (QUIRINUS_FEATURE_POSIX)
-    int32_t state;
-    size_t size = 32;
+    char* buffer = strerror(code);
+#else
+    DWORD lang = 0;
+    DWORD flags = 0;
+    DWORD state = 0;
+    size_t size = 64;
     char* buffer = NULL;
+    flags = FORMAT_MESSAGE_FROM_SYSTEM;
+    flags |= FORMAT_MESSAGE_IGNORE_INSERTS;
+    lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
     while (true)
     {
       buffer = new char[size];
-      for (size_t i = 0; i < size; ++i)
-        buffer[i] = 0;
-      buffer = ::strerror_r(code, buffer, size);
-      state = (!buffer) ? 0 : errno;
-      if (state && (errno != ERANGE))
-      {
-        delete[] buffer;
-        throw MemoryError("no memory available");
-      }
-      if (!state)
+      ::memset(buffer, 0, size);
+      state = ::FormatMessageA(flags, NULL, code, lang, buffer, size, NULL);
+      if (state)
         break;
       delete[] buffer;
       size *= 1.5;
     }
-#else
-    uint16_t lang;
-    uint32_t flags;
-    char* buffer = NULL;
-    flags = FORMAT_MESSAGE_ALLOCATE_BUFFER;
-    flags |= FORMAT_MESSAGE_IGNORE_INSERTS;
-    flags |= FORMAT_MESSAGE_FROM_SYSTEM;
-    lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
-    size_t size = ::FormatMessageA(flags, NULL, code, lang, buffer, 0, NULL);
-    if (size > 0)
-    {
-      while (size > 0)
-      {
-        bytechar value = static_cast<bytechar>(buffer[(size - 1)]);
-        if ((value <= ' ') && (value == '.'))
-          buffer[--size] = 0;
-      }
-    }
-    else
-    {
-      delete[] buffer;
-      std::cout << code << std::endl;
-      throw MemoryError("no memory available");;
-    }
 #endif
-    char* nbuffer = buffer;
-    size_t nsize = ::strlen(buffer);
-    for (size_t i = 0; i < nsize; ++i)
-      nbuffer[i] = buffer[i];
-    self_message = nbuffer;
+    self_message = nullstrdup(buffer);
   }
 
 

@@ -44,7 +44,7 @@ operator/(const LTYPE& lhs, const RTYPE& rhs)
 {
   typename quirinus::autotype<LTYPE, RTYPE>::type lop(lhs);
   typename quirinus::autotype<LTYPE, RTYPE>::type rop(rhs);
-  return (lop * rop);
+  return (lop / rop);
 }
 
 
@@ -54,7 +54,7 @@ operator%(const LTYPE& lhs, const RTYPE& rhs)
 {
   typename quirinus::autotype<LTYPE, RTYPE>::type lop(lhs);
   typename quirinus::autotype<LTYPE, RTYPE>::type rop(rhs);
-  return (lop * rop);
+  return (lop % rop);
 }
 
 

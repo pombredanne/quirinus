@@ -21,49 +21,37 @@ cmp(const LTYPE& lhs, const RTYPE& rhs)
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator<(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) < 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) < 0); }
 
 
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator<=(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) <= 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) <= 0); }
 
 
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator==(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) == 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) == 0); }
 
 
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator!=(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) != 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) != 0); }
 
 
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator>=(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) >= 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) >= 0); }
 
 
 template <typename LTYPE, typename RTYPE>
 inline Bool
 operator>(const LTYPE& lhs, const RTYPE& rhs)
-{
-  return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) > 0);
-}
+{ return (quirinus::cmp<LTYPE, RTYPE>(lhs, rhs) > 0); }
 
 
 } // namespace quirinus

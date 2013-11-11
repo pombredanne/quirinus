@@ -2,35 +2,48 @@
 # encoding: UTF-8
 
 QUIRINUS_CXX="g++"
-QUIRINUS_OPTIONS="-g -O3 -ansi -pedantic -Wno-long-long -static"
-QUIRINUS_OPTIONS="${QUIRINUS_OPTIONS} -Ilib -Lbuild"
-QUIRINUS_OPTIONS="${QUIRINUS_OPTIONS} -I/usr/local/include -L/usr/local/lib"
-QUIRINUS_OPTIONS="${QUIRINUS_OPTIONS} -I/usr/include -L/usr/lib"
+QUIRINUS_SYSTEM=$(uname -o)
+if [ "${QUIRINUS_SYSTEM}" == "GNU/Linux" ]
+then
+  QUIRINUS_CXX="clang++"
+fi
+QUIRINUS_OPTIONS="-g -O3 -ansi -pedantic -static -Wno-long-long"
+QUIRINUS_LIBRARY="-Lbuild-L/usr/lib -L/usr/local/lib"
+QUIRINUS_INCLUDE="-Ilib -I/usr/include -I/usr/local/include"
 
 
-echo $QUIRINUS_OPTIONS
-
-
+if [ "$1" != "-s" ]
+then
 echo "quirinus::core"
 ${QUIRINUS_CXX} \
-  -Wall ${QUIRINUS_OPTIONS} \
+  -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
   -c "src/quirinus/core.cpp" -o "build/core.o"
+fi
 
 
+if [ "$1" != "-s" ]
+then
 echo "quirinus::codecs"
 ${QUIRINUS_CXX} \
-  -Wall ${QUIRINUS_OPTIONS} \
+  -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
   -c "src/quirinus/codecs.cpp" -o "build/codecs.o"
+fi
 
 
+if [ "$1" != "-s" ]
+then
 echo "quirinus::filesystem"
 ${QUIRINUS_CXX} \
-  -Wall ${QUIRINUS_OPTIONS} \
+  -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
   -c "src/quirinus/filesystem.cpp" -o "build/filesystem.o"
+fi
 
 
+echo "quirinus::main"
 ${QUIRINUS_CXX} \
   -Wall ${QUIRINUS_OPTIONS} \
+  ${QUIRINUS_INCLUDE} \
+  ${QUIRINUS_LIBRARY} \
   "build/core.o" \
   "build/codecs.o" \
   "build/filesystem.o" \

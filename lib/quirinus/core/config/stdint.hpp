@@ -185,6 +185,15 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 
+// 128-bit integer
+#if (QUIRINUS_FEATURE_INT128)
+  #if defined(__GNUC__)
+typedef signed __int128 int128_t;
+typedef unsigned __int128 uint128_t;
+  #endif
+#endif
+
+
 // Largest integer
 #if defined(QUIRINUS_FEATURE_LONGLONG)
 typedef int64_t intmax_t;
@@ -197,12 +206,39 @@ typedef uint32_t uintmax_t;
 
 // Maximum size
 #if !defined(SIZE_MAX)
-  #define SIZE_MAX UINT64_MAX
+  #if defined(__SIZE_MAX__)
+    #define SIZE_MAX __SIZE_MAX__
+  #elif defined(__LP64__) \
+  || (defined(_M_IA64) || defined(_WIN64))
+    #define SIZE_MAX UINT64_MAX
+  #else
+    #define SIZE_MAX UINT32_MAX
+  #endif
 #endif
 
 
+// Type definitions
+namespace quirinus {
+
+
+// Integer types
+using ::int8_t;
+using ::uint8_t;
+using ::int16_t;
+using ::uint16_t;
+using ::int32_t;
+using ::uint32_t;
+using ::int64_t;
+using ::uint64_t;
+#if (QUIRINUS_FEATURE_INT128)
+using ::int128_t;
+using ::uint128_t;
+#endif
+
 // Byte type
 typedef uint8_t byte;
+typedef std::vector<byte> bytestack;
 
 
+} // namespace quirinus
 #endif // QUIRINUS_CORE_CONFIG_STDINT_HPP

@@ -17,10 +17,7 @@ FilePath::exists() const
   return (state == 0);
 #else
   DWORD attributes = 0;
-  if (self_api == API::WINANSI)
-    attributes = ::GetFileAttributesA(*this);
-  else if (self_api == API::WINWIDE)
-    attributes = ::GetFileAttributesW(*this);
+  attributes = ::GetFileAttributesW(*this);
   return (attributes != INVALID_FILE_ATTRIBUTES);
 #endif
 }

@@ -5,6 +5,7 @@
 
 namespace quirinus {
 
+
 Unicode::Unicode(const Object& object)
 {
   Unicode stack(object.cast_unicode());
@@ -15,14 +16,16 @@ Unicode::Unicode(const Object& object)
 Bytes
 Unicode::repr() const
 {
-  charstack stack;
-  unicode code = 0;
-  size_t count = 0;
-  size_t size = self.size();
+  uint32_t code;
+  unicodestack stack;
   char* buffer = new char[10];
-  for (size_t i = 0; i < size; ++i)
+  const unicode* head = NULL;
+  const unicode* tail = NULL;
+  head = &*self.begin();
+  tail = &*self.end();
+  for (; head < tail; ++head)
   {
-    code = self[i];
+    code = *head;
     if (code < 0x80)
     {
       if ((code == 0x00)  // \0
@@ -61,7 +64,7 @@ Unicode::repr() const
     else
     {
       ::memset(buffer, 0, 10);
-      count = (code < 0xFFFF) ? 6 : 10;
+      size_t count = ((code < 0xFFFF) ? 6 : 10);
       if (code < 0xFFFF)
         ::sprintf(buffer, "\\u%04x", code);
       else
@@ -70,16 +73,21 @@ Unicode::repr() const
         stack.push_back(buffer[j]);
     }
   }
+  if (!stack.size())
+  {
+    stack.reserve(1);
+    stack.push_back(0);
+  }
   delete[] buffer;
-  return Bytes(stack.begin(), stack.end());
+  head = &*stack.begin();
+  tail = &*stack.end();
+  return Bytes(head, tail);
 }
 
 
 Bool
 Unicode::cast_bool() const
-{
-  return (!!self.size());
-}
+{ return (self.size()); }
 
 
 Int
@@ -100,15 +108,12 @@ Unicode::cast_float() const
 
 Bytes
 Unicode::cast_bytes() const
-{
-  return Bytes(self.begin(), self.end());
-}
+{ return Bytes(this->head(), this->tail()); }
 
 
 Unicode
 Unicode::cast_unicode() const
-{
-  return Unicode(self.begin(), self.end());
-}
+{ return Unicode(this->head(), this->tail()); }
+
 
 } // namespace quirinus

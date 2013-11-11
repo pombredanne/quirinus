@@ -47,99 +47,6 @@ public:
   { swap(*this, object); }
 #endif
 
-  /*
-  Float(const Object& object)
-  {
-    Float operand = object.cast_float();
-    ::mpz_init2(self, ::mpfr_get_prec(operand.self));
-    ::mpz_set(self, operand.self);
-  }
-  */
-
-  Float(const bool& object)
-  {
-    ::mpfr_init(self);
-    if (!!object)
-    {
-      Int operand(object);
-      ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-    }
-    else
-      ::mpfr_set_zero(self, 1);
-  }
-
-  Float(const signed char& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const unsigned char& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const signed short& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const unsigned short& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const signed int& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const unsigned int& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const signed long& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const unsigned long& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-#if (QUIRINUS_FEATURE_LONGLONG)
-  Float(const signed long long& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-
-  Float(const unsigned long long& object)
-  {
-    ::mpfr_init(self);
-    Int operand(object);
-    ::mpfr_set_z(self, operand.self, MPFR_RNDA);
-  }
-#endif // !QUIRINUS_FEATURE_LONGLONG
-
   Float(const float& object)
   {
     ::mpfr_init(self);
@@ -166,13 +73,13 @@ public:
 
 
   // Swap function
-  inline friend void
+  friend void
   swap(Float& lhs, Float& rhs)
   { ::mpfr_swap(lhs.self, rhs.self); }
 
 
   // Assignment function
-  inline Float&
+  Float&
   operator=(Float object)
   {
     swap(*this, object);
@@ -181,19 +88,19 @@ public:
 
 
   // Virtual functions
-  inline Float*
+  Float*
   clone() const
   { return new Float(*this); }
 
 
   // Comparison functions
-  static inline int
+  static int
   cmp(const Float& lhs, const Float& rhs)
   { return ::mpfr_cmp(lhs.self, rhs.self); }
 
 
   // Mathematical functions
-  friend inline Float
+  friend Float
   operator+(const Float& lhs, const Float& rhs)
   {
     Float result;
@@ -201,7 +108,7 @@ public:
     return result;
   }
 
-  friend inline Float
+  friend Float
   operator-(const Float& lhs, const Float& rhs)
   {
     Float result;
@@ -209,7 +116,7 @@ public:
     return result;
   }
 
-  friend inline Float
+  friend Float
   operator*(const Float& lhs, const Float& rhs)
   {
     Float result;
@@ -217,7 +124,7 @@ public:
     return result;
   }
 
-  friend inline Float
+  friend Float
   operator/(const Float& lhs, const Float& rhs)
   {
     Float result;
@@ -225,7 +132,7 @@ public:
     return result;
   }
 
-  friend inline Float
+  friend Float
   operator%(const Float& lhs, const Float& rhs)
   {
     Float result;
@@ -238,5 +145,23 @@ public:
 };
 
 
+template <>
+struct supertype<float>
+{ typedef Float type; };
+
+
+template <>
+struct supertype<double>
+{ typedef Float type; };
+
+
+#if (QUIRINUS_FEATURE_LONGDOUBLE)
+template <>
+struct supertype<long double>
+{ typedef Float type; };
+#endif
+
+
 } // namespace quirinus
+#include "autotype/Float.hpp"
 #endif // QUIRINUS_CORE_TYPES_FLOAT_HPP

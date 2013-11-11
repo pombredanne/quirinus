@@ -31,6 +31,10 @@ public:
   virtual operator signed long long() const;
   virtual operator unsigned long long() const;
 #endif
+#if (QUIRINUS_FEATURE_INT128)
+  virtual operator int128_t() const;
+  virtual operator uint128_t() const;
+#endif
   virtual operator float() const;
   virtual operator double() const;
   virtual operator const char*() const;
@@ -41,6 +45,9 @@ public:
 
   Object()
   {}
+
+  virtual Object* clone() const
+  { throw AttributeError("clone not implemented"); }
 };
 
 

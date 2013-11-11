@@ -39,12 +39,11 @@ public:
 
 #if (QUIRINUS_FEATURE_CXX11)
   Bool(const Bool&& object)
-  : self()
   { swap(*this, object); }
 #endif
 
   // Swap function
-  friend inline void
+  friend void
   swap(Bool& lhs, Bool& rhs)
   {
     using std::swap;
@@ -53,7 +52,7 @@ public:
 
 
   // Assignment function
-  inline Bool&
+  Bool&
   operator=(Bool object)
   {
     swap(*this, object);
@@ -62,54 +61,62 @@ public:
 
 
   // Cast functions
-  inline
   operator bool() const
   { return self; }
 
 
   // Virtual functions
-  inline Bool*
+  Bool*
   clone() const
   { return new Bool(*this); }
 
 
   // Logical functions
-  friend inline Bool
+  friend Bool
   operator&(const Bool& lhs, const Bool& rhs)
   { return (lhs.self & rhs.self); }
 
-  friend inline Bool
+  friend Bool
   operator|(const Bool& lhs, const Bool& rhs)
   { return (lhs.self | rhs.self); }
 
-  friend inline Bool
+  friend Bool
   operator^(const Bool& lhs, const Bool& rhs)
   { return (lhs.self ^ rhs.self); }
 
 
   // Modifying functions
-  inline Bool&
-  operator&=(const Bool& object)
-  {
-    self &= object.self;
-    return *this;
-  }
+  friend Bool
+  operator&=(Bool& lhs, const bool& rhs)
+  { return (lhs.self &= rhs); }
 
-  inline Bool&
-  operator|=(const Bool& object)
-  {
-    self |= object.self;
-    return *this;
-  }
+  friend Bool
+  operator&=(bool& lhs, const Bool& rhs)
+  { return (lhs &= rhs.self); }
 
-  inline Bool&
-  operator^=(const Bool& object)
-  {
-    self ^= object.self;
-    return *this;
-  }
+  friend Bool
+  operator|=(Bool& lhs, const bool& rhs)
+  { return (lhs.self |= rhs); }
+
+  friend Bool
+  operator|=(bool& lhs, const Bool& rhs)
+  { return (lhs |= rhs.self); }
+
+  friend Bool
+  operator^=(Bool& lhs, const bool& rhs)
+  { return (lhs.self ^= rhs); }
+
+  friend Bool
+  operator^=(bool& lhs, const Bool& rhs)
+  { return (lhs ^= rhs.self); }
 };
 
 
+template <>
+struct supertype<bool>
+{ typedef Bool type; };
+
+
 } // namespace quirinus
+#include "autotype/Bool.hpp"
 #endif // QUIRINUS_CORE_TYPES_BOOL_HPP

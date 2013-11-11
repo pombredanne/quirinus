@@ -16,14 +16,11 @@ rmfile(const FilePath& path)
 #if (QUIRINUS_FEATURE_POSIX)
   int state = 0;
   state = ::unlink(path);
-  state = (!state) ? 0 : errno;
+  state = ((!state) ? 0 : errno);
 #else
   DWORD state = 0;
-  if (path.api() == filesystem::API::WINWIDE)
-    state = ::DeleteFileW(path);
-  else
-    state = ::DeleteFileA(path);
-  state = (!state) ? ::GetLastError() : 0;
+  state = ::DeleteFileW(path);
+  state = ((!state) ? ::GetLastError() : 0);
 #endif
   if (state)
     throw SystemError(state);

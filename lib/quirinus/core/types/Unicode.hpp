@@ -17,17 +17,16 @@ public:
   friend class Int;
   friend class Float;
   friend class Bytes;
+  friend class Iter;
   Unicode(const Object&);
 public:
+  Iter iter() const;
   Bytes repr() const;
   Bool cast_bool() const;
   Int cast_int() const;
   Float cast_float() const;
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
-public:
-  typedef unicodestack::iterator iterator;
-  typedef unicodestack::const_iterator const_iterator;
 public:
   ~Unicode()
   {}
@@ -41,9 +40,7 @@ public:
 
 #if (QUIRINUS_FEATURE_CXX11)
   Unicode(const Unicode&& object)
-  {
-    swap(*this, object);
-  }
+  { swap(*this, object); }
 #endif
 
   Unicode(const char* object)
@@ -103,7 +100,7 @@ public:
   Unicode(const bytechar* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     int state = 0;
     size_t offset = 0;
     size_t declen = 0;
@@ -120,7 +117,7 @@ public:
   Unicode(const widechar* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     int state = 0;
     size_t offset = 0;
     size_t declen = 0;
@@ -138,60 +135,65 @@ public:
   Unicode(const unicode* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     self.reserve(len);
     for (size_t i = 0; i < len; ++i)
       self.push_back(object[i]);
   }
 
-  Unicode(charstack::const_iterator begin,
-          charstack::const_iterator end)
+  Unicode(const char* head,
+          const char* tail)
   {
-    size_t len = (end - begin);
-    const char* object = &(*begin);
-    Unicode stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Unicode stack(head, len);
     swap(*this, stack);
   }
 
-  Unicode(wcharstack::const_iterator begin,
-          wcharstack::const_iterator end)
+  Unicode(const wchar_t* head,
+          const wchar_t* tail)
   {
-    size_t len = (end - begin);
-    const wchar_t* object = &(*begin);
-    Unicode stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Unicode stack(head, len);
     swap(*this, stack);
   }
 
-  Unicode(bytecharstack::const_iterator begin,
-          bytecharstack::const_iterator end)
+  Unicode(const bytechar* head,
+          const bytechar* tail)
   {
-    size_t len = (end - begin);
-    const bytechar* object = &(*begin);
-    Unicode stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Unicode stack(head, len);
     swap(*this, stack);
   }
 
-  Unicode(widecharstack::const_iterator begin,
-          widecharstack::const_iterator end)
+  Unicode(const widechar* head,
+          const widechar* tail)
   {
-    size_t len = (end - begin);
-    const widechar* object = &(*begin);
-    Unicode stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Unicode stack(head, len);
     swap(*this, stack);
   }
 
-  Unicode(unicodestack::const_iterator begin,
-          unicodestack::const_iterator end)
+  Unicode(const unicode* head,
+          const unicode* tail)
   {
-    size_t len = (end - begin);
-    const unicode* object = &(*begin);
-    Unicode stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Unicode stack(head, len);
     swap(*this, stack);
   }
 
 
   // Swap function
-  inline friend void
+  friend void
   swap(Unicode& lhs, Unicode& rhs)
   {
     using std::swap;
@@ -200,7 +202,7 @@ public:
 
 
   // Assignment function
-  inline Unicode&
+  Unicode&
   operator=(Unicode object)
   {
     swap(*this, object);
@@ -214,13 +216,13 @@ public:
 
 
   // Virtual functions
-  inline Unicode*
+  Unicode*
   clone() const
   { return new Unicode(*this); }
 
 
   // Comparison functions
-  static inline int
+  static int
   cmp(const Unicode& lhs, const Unicode& rhs)
   {
     size_t lsize = lhs.self.size();
@@ -244,7 +246,7 @@ public:
 
 
   // Mathematical functions
-  friend inline Unicode
+  friend Unicode
   operator+(const Unicode& lhs, const Unicode& rhs)
   {
     Unicode result;
@@ -257,7 +259,7 @@ public:
     return result;
   }
 
-  friend inline Unicode
+  friend Unicode
   operator*(const Unicode& object, Int count)
   {
     if (mpz_sgn(count.self) <= 0)
@@ -265,15 +267,12 @@ public:
     Unicode result;
     unicodestack::const_iterator begin = object.self.begin();
     unicodestack::const_iterator end = object.self.end();
-    while (count)
-    {
+    for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
-      --count;
-    }
     return result;
   }
 
-  friend inline Unicode
+  friend Unicode
   operator*(Int count, const Unicode& object)
   {
     if (mpz_sgn(count.self) <= 0)
@@ -281,18 +280,15 @@ public:
     Unicode result;
     unicodestack::const_iterator begin = object.self.begin();
     unicodestack::const_iterator end = object.self.end();
-    while (count)
-    {
+    for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
-      --count;
-    }
     return result;
   }
 
 
   // Modifying functions
-  inline Unicode&
-  operator+(const Unicode& object)
+  Unicode&
+  operator+=(const Unicode& object)
   {
     unicodestack::const_iterator begin = object.self.begin();
     unicodestack::const_iterator end = object.self.end();
@@ -300,8 +296,8 @@ public:
     return *this;
   }
 
-  inline Unicode&
-  operator*(Int count)
+  Unicode&
+  operator*=(Int count)
   {
     if (mpz_sgn(count.self) <= 0)
       return *this;
@@ -309,61 +305,62 @@ public:
     stack.self.insert(stack.self.end(), self.begin(), self.end());
     unicodestack::const_iterator begin = stack.self.begin();
     unicodestack::const_iterator end = stack.self.end();
-    while (count)
-    {
+    for (; count; --count)
       self.insert(self.end(), begin, end);
-      --count;
-    }
     return *this;
   }
 
 
-  // Other functions
-  /**
-   * @brief 
-   */
-  inline iterator
-  begin()
-  { return self.begin(); }
+  // Iterable functions
+  const unicode*
+  head() const
+  { return &self[0]; }
+
+  const unicode*
+  tail() const
+  { return (&self[0] + self.size()); }
 
 
-  /**
-   * @brief 
-   */
-  inline const_iterator
-  begin() const
-  { return self.begin(); }
-
-
-  /**
-   * @brief 
-   */
-  inline iterator
-  end()
-  { return self.end(); }
-
-
-  /**
-   * @brief 
-   */
-  inline const_iterator
-  end() const
-  { return self.end(); }
-
-
-  /**
-   * @brief Return string length.
-   */
-  inline Int
+  /// @brief Return string length.
+  Int
   length() const
   { return self.size(); }
 
+
+  /// @brief Check if string starts with substring.
+  Bool
+  startswith(const Unicode& substring) const
+  {
+    size_t size = self.size();
+    size_t subsize = substring.self.size();
+    if (size < subsize)
+      return false;
+    const unicode* head = substring.head();
+    const unicode* tail = substring.tail();
+    Unicode operand(head, tail);
+    return (Unicode::cmp(*this, operand) == 0);
+  }
+
+
+  /// @brief Check if string ends with substring.
+  Bool
+  endswith(const Unicode& substring) const
+  {
+    size_t size = self.size();
+    size_t subsize = substring.self.size();
+    if (size < subsize)
+      return false;
+    const unicode* head = substring.head();
+    const unicode* tail = substring.tail();
+    Unicode operand(head, tail);
+    return (Unicode::cmp(*this, operand) == 0);
+  }
 
   /**
    * @brief Return null terminated string.
    * @WARNING Allocated memory must be freed using delete[] statement.
    */
-  inline unicode*
+  unicode*
   nullstr() const
   {
     unicodestack::const_iterator iter = self.begin();
@@ -377,10 +374,8 @@ public:
   }
 
 
-  /**
-   * @brief Check if null character occurs.
-   */
-  inline Bool
+  /// @brief Check if null character occurs.
+  Bool
   nullcheck() const
   {
     unicodestack::const_iterator iter = self.begin();
@@ -396,5 +391,21 @@ public:
 };
 
 
+template <>
+struct supertype<const wchar_t*>
+{ typedef Unicode type; };
+
+
+template <>
+struct supertype<const widechar*>
+{ typedef Unicode type; };
+
+
+template <>
+struct supertype<const unicode*>
+{ typedef Unicode type; };
+
+
 } // namespace quirinus
+#include "autotype/Unicode.hpp"
 #endif // QUIRINUS_CORE_TYPES_UNICODE_HPP

@@ -67,7 +67,7 @@ env(const Bytes& variable, const Bytes& value)
 #else
   DWORD state = 0;
   state = ::SetEnvironmentVariableA(varbuffer, valbuffer);
-  state = (!state) ? ::GetLastError() : 0;
+  state = ((!state) ? ::GetLastError() : 0);
   if (state)
   {
     state = ::GetLastError();

@@ -14,36 +14,26 @@ inline void
 link(const FilePath& src, const FilePath& dest)
 {
 #if (QUIRINUS_FEATURE_POSIX)
-  int32_t state;
+  int state = 0;
   state = ::link(src, dest);
-  state = (!state) ? 0 : errno;
+  state = ((!state) ? 0 : errno);
 #else
-  uint32_t state;
-  typedef int (*HardLinkA) (
-    LPCSTR src,
-    LPCSTR dest
-  ); // WinANSI hard link
-  typedef int (*HardLinkW) (
+  DWORD state = 0;
+  typedef int (*HardLink) (
     LPCWSTR src,
     LPCWSTR dest
-  ); // WinWide hard link
+  ); // CreateHardLinkW pointer
+
   HMODULE kernel = ::GetModuleHandle("kernel32.dll");
-  state = (!kernel) ? ::GetLastError() : 0;
+  state = ((!kernel) ? ::GetLastError() : 0);
   if (state)
     throw SystemError(state);
-  HardLinkA link_ansi = (HardLinkA) \
-    ::GetProcAddress(kernel, "CreateHardLinkA");
-  HardLinkW link_wide = (HardLinkW) \
+  HardLink link = (HardLink) \
     ::GetProcAddress(kernel, "CreateHardLinkW");
-  if (!link_ansi || !link_wide)
+  if (!link)
     throw SupportError("hard links are not supported");
-  if (src.api() != dest.api())
-    state = link_ansi(src, dest);
-  else if (src.api() == filesystem::API::WINWIDE)
-    state = link_wide(src, dest);
-  else
-    state = link_ansi(src, dest);
-  state = (!state) ? ::GetLastError() : 0;
+  state = link(src, dest);
+  state = ((!state) ? ::GetLastError() : 0);
 #endif
   if (state)
     throw SystemError(state);

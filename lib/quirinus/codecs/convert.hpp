@@ -22,8 +22,11 @@ convert(const Bytes& buffer,
 {
   Codec* srccodec = codecs::lookup(srcencoding);
   Codec* destcodec = codecs::lookup(destencoding);
-  Unicode stack = srccodec->encode(buffer);
-  return destcodec->encode(stack);
+  Unicode ustring = srccodec->decode(buffer);
+  Bytes bstring = destcodec->encode(ustring);
+  delete srccodec;
+  delete destcodec;
+  return bstring;
 }
 
 

@@ -6,7 +6,7 @@
 #ifndef QUIRINUS_CORE_OPERATORS_HPP
 #define QUIRINUS_CORE_OPERATORS_HPP
 #include "types.hpp"
-#include "static.hpp"
+#include "template.hpp"
 #include "operators/cmp.hpp"
 #include "operators/logic.hpp"
 #include "operators/math.hpp"

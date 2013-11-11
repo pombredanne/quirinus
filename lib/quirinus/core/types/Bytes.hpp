@@ -17,8 +17,10 @@ public:
   friend class Int;
   friend class Float;
   friend class Unicode;
+  friend class Iter;
   Bytes(const Object&);
 public:
+  Iter iter() const;
   Bytes repr() const;
   Bool cast_bool() const;
   Int cast_int() const;
@@ -26,14 +28,11 @@ public:
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
 public:
-  typedef bytecharstack::iterator iterator;
-  typedef bytecharstack::const_iterator const_iterator;
-public:
   ~Bytes()
   {}
 
   Bytes()
-  {}
+  { self.push_back(0); }
 
   Bytes(const Bytes& object)
   : self(object.self)
@@ -41,9 +40,7 @@ public:
 
 #if (QUIRINUS_FEATURE_CXX11)
   Bytes(const Bytes&& object)
-  {
-    swap(*this, object);
-  }
+  { swap(*this, object); }
 #endif
 
   Bytes(const char* object)
@@ -104,7 +101,7 @@ public:
   Bytes(const bytechar* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     self.reserve(len);
     for (size_t i = 0; i < len; ++i)
       self.push_back(object[i]);
@@ -113,7 +110,7 @@ public:
   Bytes(const widechar* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     int state = 0;
     size_t offset = 0;
     size_t declen = 0;
@@ -138,13 +135,12 @@ public:
   Bytes(const unicode* object, const size_t& len)
   {
     if (!object)
-      throw MemoryError("null pointer access");
+      throw ValueError("null pointer access");
     int state = 0;
     size_t offset = 0;
     size_t enclen = 0;
     bytechar* encptr = NULL;
     state = u8_encode(object, len, encptr, enclen, offset);
-    std::cout << "unicode " << state << std::endl;
     if (state != UNICODE_STATE_SUCCESS)
       throw EncodeError(state, offset, "UTF-8");
     self.reserve(enclen);
@@ -153,54 +149,59 @@ public:
     delete[] encptr;
   }
 
-  Bytes(charstack::const_iterator begin,
-        charstack::const_iterator end)
+  Bytes(const char* head,
+        const char* tail)
   {
-    size_t len = (end - begin);
-    const char* object = &(*begin);
-    Bytes stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Bytes stack(head, len);
     swap(*this, stack);
   }
 
-  Bytes(wcharstack::const_iterator begin,
-        wcharstack::const_iterator end)
+  Bytes(const wchar_t* head,
+        const wchar_t* tail)
   {
-    size_t len = (end - begin);
-    const wchar_t* object = &(*begin);
-    Bytes stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Bytes stack(head, len);
     swap(*this, stack);
   }
 
-  Bytes(bytecharstack::const_iterator begin,
-        bytecharstack::const_iterator end)
+  Bytes(const bytechar* head,
+        const bytechar* tail)
   {
-    size_t len = (end - begin);
-    const bytechar* object = &(*begin);
-    Bytes stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Bytes stack(head, len);
     swap(*this, stack);
   }
 
-  Bytes(widecharstack::const_iterator begin,
-        widecharstack::const_iterator end)
+  Bytes(const widechar* head,
+        const widechar* tail)
   {
-    size_t len = (end - begin);
-    const widechar* object = &(*begin);
-    Bytes stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Bytes stack(head, len);
     swap(*this, stack);
   }
 
-  Bytes(unicodestack::const_iterator begin,
-        unicodestack::const_iterator end)
+  Bytes(const unicode* head,
+        const unicode* tail)
   {
-    size_t len = (end - begin);
-    const unicode* object = &(*begin);
-    Bytes stack(object, len);
+    if (tail <= head)
+      throw ValueError("incorrect range");
+    size_t len = (tail - head);
+    Bytes stack(head, len);
     swap(*this, stack);
   }
 
 
   // Swap function
-  inline friend void
+  friend void
   swap(Bytes& lhs, Bytes& rhs)
   {
     using std::swap;
@@ -209,7 +210,7 @@ public:
 
 
   // Assignment function
-  inline Bytes&
+  Bytes&
   operator=(Bytes object)
   {
     swap(*this, object);
@@ -222,17 +223,17 @@ public:
   { return reinterpret_cast<const char*>(&self[0]); }
 
   operator const bytechar*() const
-  { return reinterpret_cast<const bytechar*>(&self[0]); }
+  { return &self[0]; }
 
 
   // Virtual functions
-  inline Bytes*
+  Bytes*
   clone() const
   { return new Bytes(*this); }
 
 
   // Comparison functions
-  static inline int
+  static int
   cmp(const Bytes& lhs, const Bytes& rhs)
   {
     size_t lsize = lhs.self.size();
@@ -256,7 +257,7 @@ public:
 
 
   // Mathematical functions
-  friend inline Bytes
+  friend Bytes
   operator+(const Bytes& lhs, const Bytes& rhs)
   {
     Bytes result;
@@ -269,7 +270,7 @@ public:
     return result;
   }
 
-  friend inline Bytes
+  friend Bytes
   operator*(const Bytes& object, Int count)
   {
     if (mpz_sgn(count.self) <= 0)
@@ -277,15 +278,12 @@ public:
     Bytes result;
     bytecharstack::const_iterator begin = object.self.begin();
     bytecharstack::const_iterator end = object.self.end();
-    while (count)
-    {
+    for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
-      --count;
-    }
     return result;
   }
 
-  friend inline Bytes
+  friend Bytes
   operator*(Int count, const Bytes& object)
   {
     if (mpz_sgn(count.self) <= 0)
@@ -293,11 +291,8 @@ public:
     Bytes result;
     bytecharstack::const_iterator begin = object.self.begin();
     bytecharstack::const_iterator end = object.self.end();
-    while (count)
-    {
+    for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
-      --count;
-    }
     return result;
   }
 
@@ -306,8 +301,8 @@ public:
   /**
    * @brief Concatenate current string with the other string.
    */
-  inline Bytes&
-  operator+(const Bytes& object)
+  Bytes&
+  operator+=(const Bytes& object)
   {
     bytecharstack::const_iterator begin = object.self.begin();
     bytecharstack::const_iterator end = object.self.end();
@@ -315,11 +310,8 @@ public:
     return *this;
   }
 
-  /**
-   * @brief 
-   */
-  inline Bytes&
-  operator*(Int count)
+  Bytes&
+  operator*=(Int count)
   {
     if (mpz_sgn(count.self) <= 0)
       return *this;
@@ -327,61 +319,69 @@ public:
     stack.self.insert(stack.self.end(), self.begin(), self.end());
     bytecharstack::const_iterator begin = stack.self.begin();
     bytecharstack::const_iterator end = stack.self.end();
-    while (count)
-    {
+    for (; count; --count)
       self.insert(self.end(), begin, end);
-      --count;
-    }
     return *this;
   }
 
 
-  // Other functions
-  /**
-   * @brief 
-   */
-  inline iterator
-  begin()
-  { return self.begin(); }
+  // Iterable functions
+  const bytechar*
+  head() const
+  { return &self[0]; }
+
+  const bytechar*
+  tail() const
+  { return (&self[0] + self.size()); }
 
 
-  /**
-   * @brief 
-   */
-  inline const_iterator
-  begin() const
-  { return self.begin(); }
-
-
-  /**
-   * @brief 
-   */
-  inline iterator
-  end()
-  { return self.end(); }
-
-
-  /**
-   * @brief 
-   */
-  inline const_iterator
-  end() const
-  { return self.end(); }
-
-
-  /**
-   * @brief Return string length.
-   */
-  inline Int
+  /// @brief Return string length.
+  Int
   length() const
   { return self.size(); }
+
+
+  /// @brief Check if string starts with substring.
+  Bool
+  startswith(const Bytes& substring) const
+  {
+    size_t size = self.size();
+    size_t subsize = substring.self.size();
+    if (size < subsize)
+      return false;
+    const bytechar* head = substring.head();
+    const bytechar* tail = substring.tail();
+    Bytes operand(head, tail);
+    return (Bytes::cmp(*this, operand) == 0);
+  }
+
+
+  /// @brief Check if string ends with substring.
+  Bool
+  endswith(const Bytes& substring) const
+  {
+    size_t size = self.size();
+    size_t subsize = substring.self.size();
+    if (size < subsize)
+      return false;
+    const bytechar* head = substring.head();
+    const bytechar* tail = substring.tail();
+    Bytes operand(head, tail);
+    return (Bytes::cmp(*this, operand) == 0);
+  }
+
+
+  /// @brief Return pointer to string.
+  const char*
+  pointer() const
+  { return reinterpret_cast<const char*>(&self[0]); }
 
 
   /**
    * @brief Return null terminated string.
    * @WARNING Allocated memory must be freed using delete[] statement.
    */
-  inline char*
+  char*
   nullstr() const
   {
     bytecharstack::const_iterator iter = self.begin();
@@ -395,10 +395,8 @@ public:
   }
 
 
-  /**
-   * @brief Check if null character occurs.
-   */
-  inline Bool
+  /// @brief Check if null character occurs.
+  Bool
   nullcheck() const
   {
     bytecharstack::const_iterator iter = self.begin();
@@ -414,5 +412,16 @@ public:
 };
 
 
+template <>
+struct supertype<const char*>
+{ typedef Bytes type; };
+
+
+template <>
+struct supertype<const bytechar*>
+{ typedef Bytes type; };
+
+
 } // namespace quirinus
+#include "autotype/Bytes.hpp"
 #endif // QUIRINUS_CORE_TYPES_BYTES_HPP

@@ -18,6 +18,8 @@ public:
   friend class Bytes;
   friend class Unicode;
   Int(const Object&);
+  template <typename TYPE> struct autotype;
+  template <typename TYPE> struct typeinfo;
 public:
   Bytes repr() const;
   Bool cast_bool() const;
@@ -49,99 +51,24 @@ public:
   { swap(*this, object); }
 #endif
 
-  Int(const bool& object)
+  template <typename TYPE>
+  Int(TYPE object)
   {
-    ::mpz_init2(self, 1);
-    ::mpz_import(self, 1, 1, 1, 0, 0, &object);
-  }
-
-  Int(const signed char& object)
-  {
-    ::mpz_init2(self, (sizeof(signed char) * 8));
-    ::mpz_import(self, 1, 1, sizeof(signed char), 0, 0, &object);
-  }
-
-  Int(const unsigned char& object)
-  {
-    ::mpz_init2(self, (sizeof(signed char) * 8));
-    unsigned char abs_object = (object < 0) ? -object : object;
-    ::mpz_import(self, 1, 1, sizeof(signed char), 0, 0, &abs_object);
-    if (object < 0)
-      ::mpz_neg(self, self);
-  }
-
-  Int(const signed short& object)
-  {
-    ::mpz_init2(self, (sizeof(signed short) * 8));
-    unsigned short abs_object = (object < 0) ? -object : object;
-    ::mpz_import(self, 1, 1, sizeof(signed short), 0, 0, &abs_object);
-    if (object < 0)
-      ::mpz_neg(self, self);
-  }
-
-  Int(const unsigned short& object)
-  {
-    ::mpz_init2(self, (sizeof(unsigned short) * 8));
-    ::mpz_import(self, 1, 1, sizeof(unsigned short), 0, 0, &object);
-  }
-
-  Int(const signed int& object)
-  {
-    ::mpz_init2(self, (sizeof(signed int) * 8));
-    unsigned int abs_object = (object < 0) ? -object : object;
-    ::mpz_import(self, 1, 1, sizeof(signed int), 0, 0, &abs_object);
-    if (object < 0)
-      ::mpz_neg(self, self);
-  }
-
-  Int(const unsigned int& object)
-  {
-    ::mpz_init2(self, (sizeof(unsigned int) * 8));
-    ::mpz_import(self, 1, 1, sizeof(unsigned int), 0, 0, &object);
-  }
-
-  Int(const signed long& object)
-  {
-    ::mpz_init2(self, (sizeof(signed long) * 8));
-    unsigned long abs_object = (object < 0) ? -object : object;
-    ::mpz_import(self, 1, 1, sizeof(signed long), 0, 0, &abs_object);
-    if (object < 0)
-      ::mpz_neg(self, self);
-  }
-
-  Int(const unsigned long& object)
-  {
-    ::mpz_init2(self, (sizeof(unsigned long) * 8));
-    ::mpz_import(self, 1, 1, sizeof(unsigned long), 0, 0, &object);
-  }
-
-#if (QUIRINUS_FEATURE_LONGLONG)
-  Int(const signed long long& object)
-  {
-    ::mpz_init2(self, (sizeof(signed long long) * 8));
-    unsigned long long abs_object = (object < 0) ? -object : object;
-    ::mpz_import(self, 1, 1, sizeof(signed long long), 0, 0, &abs_object);
-    if (object < 0)
-      ::mpz_neg(self, self);
-  }
-
-  Int(const unsigned long long& object)
-  {
-    ::mpz_init2(self, (sizeof(unsigned long long) * 8));
-    ::mpz_import(self, 1, 1, sizeof(unsigned long long), 0, 0, &object);
-  }
-#endif
-
-  Int(const float& object)
-  {
-    ::mpz_init(self);
-    ::mpz_set_d(self, (double)(object));
-  }
-
-  Int(const double& object)
-  {
-    ::mpz_init(self);
-    ::mpz_set_d(self, (double)(object));
+    if (Int::typeinfo<TYPE>::sign)
+    {
+      ::mpz_init2(self, (sizeof(TYPE) * CHAR_BIT));
+      typename Int::typeinfo<TYPE>::stype svalue(object);
+      typename Int::typeinfo<TYPE>::utype uvalue(object);
+      uvalue = ((svalue < 0) ? -svalue : svalue);
+      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &uvalue);
+      if (svalue < 0)
+        ::mpz_neg(self, self);
+    }
+    else
+    {
+      ::mpz_init2(self, (sizeof(TYPE) * CHAR_BIT));
+      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &object);
+    }
   }
 
   Int(const mpz_t& object)
@@ -182,13 +109,13 @@ public:
 
 
   // Swap function
-  inline friend void
+  friend void
   swap(Int& lhs, Int& rhs)
   { ::mpz_swap(lhs.self, rhs.self); }
 
 
   // Assignment function
-  inline Int&
+  Int&
   operator=(Int object)
   {
     swap(*this, object);
@@ -198,166 +125,89 @@ public:
 
   // Cast functions
   operator signed char() const
-  {
-    size_t count;
-    signed char stack;
-    Int min = std::numeric_limits<signed char>::min();
-    Int max = std::numeric_limits<signed char>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(signed char), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ signed char casting failed");
-  }
+  { return cast<signed char>(); }
 
   operator unsigned char() const
-  {
-    size_t count;
-    unsigned char stack;
-    Int min = std::numeric_limits<unsigned char>::min();
-    Int max = std::numeric_limits<unsigned char>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(unsigned char), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ unsigned char casting failed");
-  }
+  { return cast<unsigned char>(); }
 
   operator signed short() const
-  {
-    size_t count;
-    signed short stack;
-    Int min = std::numeric_limits<signed short>::min();
-    Int max = std::numeric_limits<signed short>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(signed short), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ signed short casting failed");
-  }
+  { return cast<signed short>(); }
 
   operator unsigned short() const
-  {
-    size_t count;
-    unsigned short stack;
-    Int min = std::numeric_limits<unsigned short>::min();
-    Int max = std::numeric_limits<unsigned short>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(unsigned short), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ unsigned short casting failed");
-  }
+  { return cast<unsigned short>(); }
 
   operator signed int() const
-  {
-    size_t count;
-    signed int stack;
-    Int min = std::numeric_limits<signed int>::min();
-    Int max = std::numeric_limits<signed int>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(signed int), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ signed int casting failed");
-  }
+  { return cast<signed int>(); }
 
   operator unsigned int() const
-  {
-    size_t count;
-    unsigned int stack;
-    Int min = std::numeric_limits<unsigned int>::min();
-    Int max = std::numeric_limits<unsigned int>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(unsigned int), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ unsigned int casting failed");
-  }
+  { return cast<unsigned int>(); }
 
   operator signed long() const
-  {
-    size_t count;
-    signed long stack;
-    Int min = std::numeric_limits<signed long>::min();
-    Int max = std::numeric_limits<signed long>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(signed long), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ signed long casting failed");
-  }
+  { return cast<signed long>(); }
 
   operator unsigned long() const
-  {
-    size_t count;
-    unsigned long stack;
-    Int min = std::numeric_limits<unsigned long>::min();
-    Int max = std::numeric_limits<unsigned long>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(unsigned long), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ unsigned long casting failed");
-  }
+  { return cast<unsigned long>(); }
 
 #if (QUIRINUS_FEATURE_LONGLONG)
   operator signed long long() const
-  {
-    size_t count;
-    signed long long stack;
-    Int min = std::numeric_limits<signed long long>::min();
-    Int max = std::numeric_limits<signed long long>::max();
-    if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
-    {
-      ::mpz_export(&stack, &count, 0, sizeof(signed long long), 0, 0, self);
-      return (stack * mpz_sgn(self));
-    }
-    throw CastError("C++ signed long long casting failed");
-  }
+  { return cast<signed long long>(); }
 
   operator unsigned long long() const
+  { return cast<unsigned long long>(); }
+#endif
+
+#if (QUIRINUS_FEATURE_INT128)
+  operator int128_t() const
+  { return cast<int128_t>(); }
+
+  operator uint128_t() const
+  { return cast<uint128_t>(); }
+#endif
+
+
+  template <typename TYPE>
+  TYPE cast() const
   {
-    size_t count;
-    unsigned long long stack;
-    Int min = std::numeric_limits<unsigned long long>::min();
-    Int max = std::numeric_limits<unsigned long long>::max();
+    size_t size = 0;
+    Int min = Int::typeinfo<TYPE>::min;
+    Int max = Int::typeinfo<TYPE>::max;
     if ((::mpz_cmp(self, min.self) >= 0)
-    ||  (::mpz_cmp(self, max.self) <= 0))
+    &&  (::mpz_cmp(self, max.self) <= 0))
     {
-      ::mpz_export(&stack, &count, 0, sizeof(unsigned long long), 0, 0, self);
-      return (stack * mpz_sgn(self));
+      typename Int::typeinfo<TYPE>::utype buffer;
+      ::mpz_export(&buffer, &size, 0, sizeof(TYPE), 0, 0, self);
+      return static_cast<TYPE>(buffer * mpz_sgn(self));
     }
-    throw CastError("C++ unsigned long long casting failed");
+    const char* types[] = \
+    {
+      "signed char",
+      "unsigned char",
+      "signed short",
+      "unsigned short",
+      "signed int",
+      "unsigned int",
+      "signed long",
+      "unsigned long",
+      "signed long long",
+      "unsigned long long",
+      "int128_t",
+      "uint128_t",
+    };
+    std::ostringstream sstream;
+    size_t typeno = Int::typeinfo<TYPE>::typeno;
+    sstream << "C++ " << types[typeno] << " casting failed";
+    throw CastError(sstream.str().c_str());
   }
-#endif // QUIRINUS_FEATURE_LONGLONG
 
 
   // Virtual functions
-  inline Int*
+  Int*
   clone() const
   { return new Int(*this); }
 
 
   // Comparison functions
-  static inline int
+  static int
   cmp(const Int& lhs, const Int& rhs)
   {
     return ::mpz_cmp(lhs.self, rhs.self);
@@ -365,7 +215,7 @@ public:
 
 
   // Mathematical functions
-  friend inline Int
+  friend Int
   operator+(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -373,7 +223,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator-(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -381,7 +231,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator*(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -389,7 +239,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator/(const Int& lhs, const Int& rhs)
   {
     if (!mpz_sgn(rhs.self))
@@ -399,7 +249,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator%(const Int& lhs, const Int& rhs)
   {
     if (!mpz_sgn(rhs.self))
@@ -411,7 +261,7 @@ public:
 
 
   // Logical functions
-  friend inline Int
+  friend Int
   operator&(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -419,7 +269,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator|(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -427,7 +277,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator^(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -435,7 +285,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator<<(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -443,7 +293,7 @@ public:
     return result;
   }
 
-  friend inline Int
+  friend Int
   operator>>(const Int& lhs, const Int& rhs)
   {
     Int result;
@@ -453,28 +303,28 @@ public:
 
 
   // Modifying functions
-  inline Int&
+  Int&
   operator+=(const Int& object)
   {
     ::mpz_and(self, self, object.self);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator-=(const Int& object)
   {
     ::mpz_sub(self, self, object.self);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator*=(const Int& object)
   {
     ::mpz_mul(self, self, object.self);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator/=(const Int& object)
   {
     if (!mpz_sgn(object.self))
@@ -483,7 +333,7 @@ public:
     return *this;
   }
 
-  inline Int&
+  Int&
   operator%=(const Int& object)
   {
     if (!mpz_sgn(object.self))
@@ -492,56 +342,56 @@ public:
     return *this;
   }
 
-  inline Int&
+  Int&
   operator<<=(const Int& object)
   {
     ::mpz_mul_2exp(self, self, object);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator>>=(const Int& object)
   {
     ::mpz_fdiv_q_2exp(self, self, object);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator&=(const Int& object)
   {
     ::mpz_and(self, self, object.self);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator|=(const Int& object)
   {
     ::mpz_ior(self, self, object.self);
     return *this;
   }
 
-  inline Int&
+  Int&
   operator^=(const Int& object)
   {
     ::mpz_xor(self, self, object.self);
     return *this;
   }
 
-  inline const Int&
+  const Int&
   operator++()
   {
     ::mpz_add_ui(self, self, 1);
     return *this;
   }
 
-  inline const Int&
+  const Int&
   operator--()
   {
     ::mpz_sub_ui(self, self, 1);
     return *this;
   }
 
-  inline Int
+  Int
   operator++(int)
   {
     Int result(*this);
@@ -549,7 +399,7 @@ public:
     return result;
   }
 
-  inline Int
+  Int
   operator--(int)
   {
     Int result(*this);
@@ -559,7 +409,7 @@ public:
 
 
   // Unary functions
-  inline Int
+  Int
   operator+() const
   {
     Int result;
@@ -567,7 +417,7 @@ public:
     return result;
   }
 
-  inline Int
+  Int
   operator-() const
   {
     Int result;
@@ -577,7 +427,7 @@ public:
 
 
   // Other functions
-  inline void
+  Int&
   memory_import(const void* array,
                 const size_t& count,
                 const size_t& size,
@@ -588,9 +438,10 @@ public:
     if (!array)
       throw MemoryError("null pointer access");
     ::mpz_import(self, count, order, size, endian, nails, array);
+    return *this;
   }
 
-  inline void
+  Int&
   memory_export(void* array,
                 size_t& count,
                 const size_t& size,
@@ -601,9 +452,68 @@ public:
     if (!array)
       throw MemoryError("null pointer access");
     ::mpz_export(array, &count, order, size, endian, nails, self);
+    return *this;
   }
 };
 
 
+template <typename TYPE>
+struct autotype<Int, TYPE>
+{ typedef typename Int::autotype<TYPE>::type type; };
+
+template <typename TYPE>
+struct autotype<TYPE, Int>
+{ typedef typename Int::autotype<TYPE>::type type; };
+
+
+template <>
+struct supertype<signed char>
+{ typedef Int type; };
+
+template <>
+struct supertype<unsigned char>
+{ typedef Int type; };
+
+
+template <>
+struct supertype<signed short>
+{ typedef Int type; };
+
+template <>
+struct supertype<unsigned short>
+{ typedef Int type; };
+
+
+template <>
+struct supertype<signed int>
+{ typedef Int type; };
+
+template <>
+struct supertype<unsigned int>
+{ typedef Int type; };
+
+
+template <>
+struct supertype<signed long>
+{ typedef Int type; };
+
+template <>
+struct supertype<unsigned long>
+{ typedef Int type; };
+
+
+#if (QUIRINUS_FEATURE_LONGLONG)
+template <>
+struct supertype<signed long long>
+{ typedef Int type; };
+
+template <>
+struct supertype<unsigned long long>
+{ typedef Int type; };
+#endif
+
+
 } // namespace quirinus
+#include "autotype/Int.hpp"
+#include "typeinfo/Int.hpp"
 #endif // QUIRINUS_CORE_TYPES_INT_HPP

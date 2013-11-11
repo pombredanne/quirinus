@@ -6,3 +6,4 @@
 #include <quirinus/core.hpp>
 #include "core/iostream.cpp"
 #include "core/types.cpp"
+#include "core/system.cpp"

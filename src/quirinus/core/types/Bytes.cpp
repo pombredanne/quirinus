@@ -5,6 +5,7 @@
 
 namespace quirinus {
 
+
 Bytes::Bytes(const Object& object)
 {
   Bytes stack(object.cast_bytes());
@@ -15,14 +16,17 @@ Bytes::Bytes(const Object& object)
 Bytes
 Bytes::repr() const
 {
-  bytechar code = 0;
+  bytechar code;
   bytecharstack stack;
   char* buffer = new char[4];
-  bytecharstack::const_iterator iter = self.begin();
-  bytecharstack::const_iterator tail = self.end();
-  while (iter < tail)
+  const bytechar* head = NULL;
+  const bytechar* tail = NULL;
+  head = &*self.begin();
+  tail = &*self.end();
+  stack.reserve(tail - head);
+  for (; head < tail; ++head)
   {
-    code = *iter;
+    code = *head;
     if (code < 0x80)
     {
       if ((code == 0x00)  // \0
@@ -64,18 +68,22 @@ Bytes::repr() const
       for (size_t j = 0; j < 4; ++j)
         stack.push_back(buffer[j]);
     }
-    ++iter;
+  }
+  if (!stack.size())
+  {
+    stack.reserve(1);
+    stack.push_back(0);
   }
   delete[] buffer;
-  return Bytes(stack.begin(), stack.end());
+  head = &*stack.begin();
+  tail = &*stack.end();
+  return Bytes(head, tail);
 }
 
 
 Bool
 Bytes::cast_bool() const
-{
-  return (!!self.size());
-}
+{ return (self.size()); }
 
 
 Int
@@ -101,22 +109,17 @@ Bytes::cast_int() const
 
 Float
 Bytes::cast_float() const
-{
-  return 1.0;
-}
+{ return 1.0; }
 
 
 Bytes
 Bytes::cast_bytes() const
-{
-  return Bytes(self.begin(), self.end());
-}
+{ return Bytes(this->head(), this->tail()); }
 
 
 Unicode
 Bytes::cast_unicode() const
-{
-  return Unicode(self.begin(), self.end());
-}
+{ return Unicode(this->head(), this->tail()); }
+
 
 } // namespace quirinus

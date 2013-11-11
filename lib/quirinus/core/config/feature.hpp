@@ -6,6 +6,9 @@
 #ifndef QUIRINUS_CORE_CONFIG_FEATURE_HPP
 #define QUIRINUS_CORE_CONFIG_FEATURE_HPP
 #include "include.hpp"
+#include "arch.hpp"
+#include "system.hpp"
+#include "platform.hpp"
 
 
 // C++11 compatibility
@@ -16,6 +19,7 @@
   #define QUIRINUS_FEATURE_CXX11 0
 #endif
 
+
 // C99 long long type
 #if !defined(QUIRINUS_FEATURE_LONGLONG)
   #if defined(_POSIX_V6_ILP32_OFFBIG) \
@@ -24,7 +28,6 @@
   || (defined(__WATCOMC__) && defined(__WATCOM_INT64__)) \
   || (defined(_MSC_VER) && (_INTEGRAL_MAX_BITS >= 64)) \
   || (defined(__BORLANDC__) && (__BORLANDC__ > 0x460)) \
-  || defined(__GNUC__) \
   || defined(__MWERKS__) \
   || defined(__SUNPRO_C) \
   || defined(__SUNPRO_CC) \
@@ -32,14 +35,36 @@
   || defined(__alpha) \
   || defined(__DECC) \
   || defined(_CRAYC) \
-  || defined(_LONG_LONG) \
-  || defined(LLONG_MAX) \
-  || defined(ULLONG_MAX)
+  || defined(__LONG_LONG_MAX__) \
+  || defined(__SIZEOF_LONG_LONG__) \
+  || (defined(LLONG_MIN) && defined(LLONG_MAX) && defined(ULLONG_MAX))
     #define QUIRINUS_FEATURE_LONGLONG 1
   #else
     #define QUIRINUS_FEATURE_LONGLONG 0
   #endif
 #endif
+
+
+// GCC 128-bit int type
+#if !defined(QUIRINUS_FEATURE_INT128)
+  #if defined(__SIZEOF_INT128__)
+    #define QUIRINUS_FEATURE_INT128 1
+  #else
+    #define QUIRINUS_FEATURE_INT128 0
+  #endif
+#endif
+
+
+// C99 long double type
+#if !defined(QUIRINUS_FEATURE_LONGDOUBLE)
+  #if defined(__SIZEOF_LONG_DOUBLE__) \
+  || (defined(__LDBL_MIN__) && defined(__LDBL_MAX__))
+    #define QUIRINUS_FEATURE_LONGDOUBLE 1
+  #else
+    #define QUIRINUS_FEATURE_LONGDOUBLE 0
+  #endif
+#endif
+
 
 // NaN support
 #if !defined(QUIRINUS_FEATURE_NAN)
@@ -50,6 +75,7 @@
   #endif
 #endif
 
+
 // Infinity support
 #if !defined(QUIRINUS_FEATURE_INFINITY)
   #if defined(INFINITY)
@@ -58,6 +84,7 @@
     #define QUIRINUS_FEATURE_INFINITY 0
   #endif
 #endif
+
 
 // Langinfo support
 #if !defined(QUIRINUS_FEATURE_LANGINFO)
@@ -70,6 +97,7 @@
 #if (QUIRINUS_FEATURE_LANGINFO)
   #include <langinfo.h>
 #endif
+
 
 // Symlink support
 #if !defined(QUIRINUS_FEATURE_SYMLINK)
@@ -85,6 +113,7 @@
     #define QUIRINUS_FEATURE_SYMLINK 0
   #endif
 #endif
+
 
 // Large file system support
 #if !defined(QUIRINUS_FEATURE_LFS)

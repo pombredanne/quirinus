@@ -77,14 +77,11 @@ cwd(const FilePath& dir)
 #if (QUIRINUS_FEATURE_POSIX)
   int state = 0;
   state = ::chdir(dir);
-  state = (!state) ? 0 : errno;
+  state = ((!state) ? 0 : errno);
 #else
   DWORD state = 0;
-  if (dir.api() == filesystem::API::WINWIDE)
-    state = ::SetCurrentDirectoryW(dir);
-  else
-    state = ::SetCurrentDirectoryA(dir);
-  state = (!state) ? ::GetLastError() : 0;
+  state = ::SetCurrentDirectoryW(dir);
+  state = ((!state) ? ::GetLastError() : 0);
 #endif
   if (state)
     throw SystemError(state);

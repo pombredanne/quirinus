@@ -14,9 +14,8 @@ FilePath::gid() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  state = (!state) ? 0 : errno;
-  if (!!state)
-    throw SystemError(state);
+  if (state)
+    throw SystemError(errno);
   return buffer.st_gid;
 #else
   return 0;

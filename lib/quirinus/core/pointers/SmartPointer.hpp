@@ -135,7 +135,7 @@ public:
   }; // class Counter
 private:
   CLASS* self_pointer;
-  Counter self_counter;
+  mutable Counter self_counter;
 public:
   ~SmartPointer()
   { this->release(); }
@@ -162,13 +162,9 @@ public:
   {}
 
   SmartPointer(const SmartPointer<CLASS>& object)
-  : self_pointer(NULL)
-  , self_counter(object.self_counter)
-  {
-    if ((!object.self_pointer) || (object.self_counter))
-      throw MemoryError("allocation during smart pointer copying");
-    this->acquire(object.self_pointer);
-  }
+  : self_pointer(object.self_pointer)
+  , self_counter(++object.self_counter)
+  {}
 
   template <typename TYPE>
   SmartPointer(const SmartPointer<TYPE>& object)
