@@ -14,7 +14,7 @@ FilePath::is_device() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  return ((state == 0) && ((buffer.st_mode & S_IFMT) == S_IFCHR));
+  return ((state == 0) && ((buffer.st_mode & Path::FMT) == Path::CHR));
 #else
   DWORD attributes = 0;
   attributes = ::GetFileAttributesW(*this);

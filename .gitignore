@@ -3,6 +3,7 @@
 */.out
 bin/*
 build/*
+data/.*
 ptr/*
 change.py
 main.cpp

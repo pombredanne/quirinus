@@ -14,7 +14,7 @@ FilePath::is_block() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  return ((state == 0) && ((buffer.st_mode & S_IFMT) == S_IFBLK));
+  return ((state == 0) && ((buffer.st_mode & Path::FMT) == Path::BLK));
 #else
   return false;
 #endif

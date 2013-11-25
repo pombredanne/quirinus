@@ -14,7 +14,7 @@ FilePath::is_fifo() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  return ((state == 0) && ((buffer.st_mode & S_IFMT) == S_IFIFO));
+  return ((state == 0) && ((buffer.st_mode & Path::FMT) == Path::FIFO));
 #else
   return false;
 #endif

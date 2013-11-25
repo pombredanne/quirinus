@@ -14,7 +14,7 @@ FilePath::is_socket() const
   int state = 0;
   struct stat64 buffer;
   state = ::stat64(*this, &buffer);
-  return ((state == 0) && ((buffer.st_mode & S_IFMT) == S_IFSOCK));
+  return ((state == 0) && ((buffer.st_mode & Path::FMT) == Path::SOCK));
 #else
   return false;
 #endif
