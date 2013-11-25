@@ -5,3 +5,4 @@
 
 #include <quirinus/core.hpp>
 #include <quirinus/codecs.hpp>
+#include "codecs/lookup.cpp"

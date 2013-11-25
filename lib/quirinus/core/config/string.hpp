@@ -45,46 +45,4 @@
   #endif
 #endif
 
-
-// Type definitions
-namespace quirinus {
-
-
-// Character types
-typedef uint8_t bytechar;
-#if (QUIRINUS_FEATURE_CXX11)
-typedef char16_t widechar;
-typedef char32_t unicode;
-#else
-template <typename CLASS>
-class basechar
-{
-private:
-  CLASS self;
-public:
-  ~basechar() {}
-  explicit basechar() : self() {}
-  basechar(const CLASS& object) : self(object) {}
-  template <typename TYPE> basechar(const TYPE& object) : self(object) {}
-  inline operator CLASS() const { return self; }
-};
-typedef basechar<uint16_t> widechar;
-typedef basechar<uint32_t> unicode;
-#endif
-
-// Vector types
-typedef std::vector<char> charstack;
-typedef std::vector<wchar_t> wcharstack;
-typedef std::vector<bytechar> bytecharstack;
-typedef std::vector<widechar> widecharstack;
-typedef std::vector<unicode> unicodestack;
-
-// Stream types
-typedef std::basic_istream< char, std::char_traits<char> > icharstream;
-typedef std::basic_istream< char, std::char_traits<char> > iwcharstream;
-typedef std::basic_ostream< char, std::char_traits<char> > ocharstream;
-typedef std::basic_ostream< wchar_t, std::char_traits<wchar_t> > owcharstream;
-
-
-} // namespace quirinus
 #endif // QUIRINUS_CORE_CONFIG_STRING_HPP

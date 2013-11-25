@@ -28,20 +28,24 @@ sysinfo_encoding(struct sysinfo* sys)
   tmplocale = language.nullstr();
   pointer = ::setlocale(LC_ALL, tmplocale);
   if (!pointer)
+  {
+    delete[] oldlocale;
+    delete[] tmplocale;
     throw SupportError("locale charset detection failed");
+  }
   newlocale = nullstrdup(pointer);
   pointer = ::nl_langinfo(CODESET);
   encoding = nullstrdup(pointer);
 
   // Change sysinfo variables.
   sys->encoding.locale = encoding;
-  sys->encoding.stdinstream = encoding;
-  sys->encoding.stdoutstream = encoding;
-  sys->encoding.stderrstream = encoding;
+  sys->encoding.stdin = encoding;
+  sys->encoding.stdout = encoding;
+  sys->encoding.stderr = encoding;
   sys->encoding.filesystem = encoding;
 
   // Restore locale and free memory.
-  pointer = ::setlocale(LC_ALL, oldlocale);
+  ::setlocale(LC_ALL, oldlocale);
   delete[] encoding;
   delete[] tmplocale;
   delete[] oldlocale;
@@ -61,14 +65,14 @@ sysinfo_encoding(struct sysinfo* sys)
   ::memset(encoding, 0, size);
   codepage = ::GetConsoleCP();
   ::snprintf(encoding, size, "CP%u", codepage);
-  sys->encoding.stdinstream = encoding;
+  sys->encoding.stdin = encoding;
 
   // stdout/stderr encoding
   ::memset(encoding, 0, size);
   codepage = ::GetConsoleOutputCP();
   ::snprintf(encoding, size, "CP%u", codepage);
-  sys->encoding.stdoutstream = encoding;
-  sys->encoding.stderrstream = encoding;
+  sys->encoding.stdout = encoding;
+  sys->encoding.stderr = encoding;
 
   // file system encoding
   sys->encoding.filesystem = "UTF-16";

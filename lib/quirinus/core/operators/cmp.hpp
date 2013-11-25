@@ -12,9 +12,11 @@ template <typename LTYPE, typename RTYPE>
 inline int
 cmp(const LTYPE& lhs, const RTYPE& rhs)
 {
-  typename quirinus::autotype<LTYPE, RTYPE>::type lop(lhs);
-  typename quirinus::autotype<LTYPE, RTYPE>::type rop(rhs);
-  return quirinus::autotype<LTYPE, RTYPE>::type::cmp(lop, rop);
+  if (lhs < rhs)
+    return -1;
+  else if (lhs > rhs)
+    return +1;
+  return 0;
 }
 
 

@@ -11,22 +11,22 @@ namespace quirinus {
 class Bytes: public Object
 {
 private:
-  bytecharstack self;
+  std::vector<bytechar> self;
 public:
   friend class Bool;
   friend class Int;
   friend class Float;
   friend class Unicode;
-  friend class Iter;
+  friend class List;
   Bytes(const Object&);
 public:
-  Iter iter() const;
   Bytes repr() const;
   Bool cast_bool() const;
   Int cast_int() const;
   Float cast_float() const;
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
+  Iter cast_iter() const;
 public:
   ~Bytes()
   {}
@@ -39,7 +39,7 @@ public:
   {}
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Bytes(const Bytes&& object)
+  Bytes(Bytes&& object)
   { swap(*this, object); }
 #endif
 
@@ -255,20 +255,114 @@ public:
     return 0;
   }
 
+  friend Bool
+  operator<(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) < 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs < static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) < rhs); }
+
+  friend Bool
+  operator<=(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) <= 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs <= static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) <= rhs); }
+
+  friend Bool
+  operator==(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) == 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs == static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) == rhs); }
+
+  friend Bool
+  operator!=(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) != 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs != static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) != rhs); }
+
+  friend Bool
+  operator>=(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) >= 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs >= static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) >= rhs); }
+
+  friend Bool
+  operator>(const Bytes& lhs, const Bytes& rhs)
+  { return (Bytes::cmp(lhs, rhs) > 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs > static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) > rhs); }
+
 
   // Mathematical functions
   friend Bytes
   operator+(const Bytes& lhs, const Bytes& rhs)
   {
     Bytes result;
-    bytecharstack::const_iterator lbegin = lhs.self.begin();
-    bytecharstack::const_iterator lend = lhs.self.end();
-    bytecharstack::const_iterator rbegin = rhs.self.begin();
-    bytecharstack::const_iterator rend = rhs.self.end();
+    std::vector<bytechar>::const_iterator lbegin = lhs.self.begin();
+    std::vector<bytechar>::const_iterator lend = lhs.self.end();
+    std::vector<bytechar>::const_iterator rbegin = rhs.self.begin();
+    std::vector<bytechar>::const_iterator rend = rhs.self.end();
     result.self.insert(result.self.end(), lbegin, lend);
     result.self.insert(result.self.end(), rbegin, rend);
     return result;
   }
+
+    template <typename TYPE>
+    friend Bytes
+    operator+(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs + static_cast<Bytes>(rhs)); }
+
+    template <typename TYPE>
+    friend Bytes
+    operator+(const TYPE& lhs, const Bytes rhs)
+    { return (static_cast<Bytes>(lhs) + rhs); }
 
   friend Bytes
   operator*(const Bytes& object, Int count)
@@ -276,25 +370,26 @@ public:
     if (mpz_sgn(count.self) <= 0)
       return Bytes();
     Bytes result;
-    bytecharstack::const_iterator begin = object.self.begin();
-    bytecharstack::const_iterator end = object.self.end();
+    std::vector<bytechar>::const_iterator begin = object.self.begin();
+    std::vector<bytechar>::const_iterator end = object.self.end();
     for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
     return result;
   }
 
+    template <typename TYPE>
+    friend Bytes
+    operator*(const Bytes& lhs, const TYPE& rhs)
+    { return (lhs * static_cast<Int>(rhs)); }
+
   friend Bytes
   operator*(Int count, const Bytes& object)
-  {
-    if (mpz_sgn(count.self) <= 0)
-      return Bytes();
-    Bytes result;
-    bytecharstack::const_iterator begin = object.self.begin();
-    bytecharstack::const_iterator end = object.self.end();
-    for (; count; --count)
-      result.self.insert(result.self.end(), begin, end);
-    return result;
-  }
+  { return (object * count); }
+
+    template <typename TYPE>
+    friend Bytes
+    operator*(const TYPE& lhs, const Bytes& rhs)
+    { return (static_cast<Int>(lhs) * rhs); }
 
 
   // Modifying functions
@@ -304,8 +399,8 @@ public:
   Bytes&
   operator+=(const Bytes& object)
   {
-    bytecharstack::const_iterator begin = object.self.begin();
-    bytecharstack::const_iterator end = object.self.end();
+    std::vector<bytechar>::const_iterator begin = object.self.begin();
+    std::vector<bytechar>::const_iterator end = object.self.end();
     self.insert(self.end(), begin, end);
     return *this;
   }
@@ -317,8 +412,8 @@ public:
       return *this;
     Bytes stack;
     stack.self.insert(stack.self.end(), self.begin(), self.end());
-    bytecharstack::const_iterator begin = stack.self.begin();
-    bytecharstack::const_iterator end = stack.self.end();
+    std::vector<bytechar>::const_iterator begin = stack.self.begin();
+    std::vector<bytechar>::const_iterator end = stack.self.end();
     for (; count; --count)
       self.insert(self.end(), begin, end);
     return *this;
@@ -384,8 +479,8 @@ public:
   char*
   nullstr() const
   {
-    bytecharstack::const_iterator iter = self.begin();
-    bytecharstack::const_iterator tail = self.end();
+    std::vector<bytechar>::const_iterator iter = self.begin();
+    std::vector<bytechar>::const_iterator tail = self.end();
     size_t size = self.size();
     char* buffer = new char[size + 1];
     for (size_t i = 0; iter < tail; ++iter, ++i)
@@ -399,8 +494,8 @@ public:
   Bool
   nullcheck() const
   {
-    bytecharstack::const_iterator iter = self.begin();
-    bytecharstack::const_iterator tail = self.end();
+    std::vector<bytechar>::const_iterator iter = self.begin();
+    std::vector<bytechar>::const_iterator tail = self.end();
     while (iter < tail)
     {
       if (*iter == 0)
@@ -413,9 +508,18 @@ public:
 
 
 template <>
+struct supertype<char*>
+{ typedef Bytes type; };
+
+template <>
 struct supertype<const char*>
 { typedef Bytes type; };
 
+
+
+template <>
+struct supertype<bytechar*>
+{ typedef Bytes type; };
 
 template <>
 struct supertype<const bytechar*>
@@ -423,5 +527,4 @@ struct supertype<const bytechar*>
 
 
 } // namespace quirinus
-#include "autotype/Bytes.hpp"
 #endif // QUIRINUS_CORE_TYPES_BYTES_HPP

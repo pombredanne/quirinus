@@ -7,30 +7,45 @@ if [ "${QUIRINUS_SYSTEM}" == "GNU/Linux" ]
 then
   QUIRINUS_CXX="clang++"
 fi
-QUIRINUS_OPTIONS="-g -O3 -ansi -pedantic -static -Wno-long-long"
-QUIRINUS_LIBRARY="-Lbuild-L/usr/lib -L/usr/local/lib"
+QUIRINUS_MAIN="main"
+if [ "${QUIRINUS_SYSTEM}" != "GNU/Linux" ]
+then
+  QUIRINUS_MAIN="main.exe"
+fi
+QUIRINUS_OPTIONS="-v -O3 -ansi -pedantic -static -Wno-long-long"
+QUIRINUS_LIBRARY="-fshort-wchar -Lbuild-L/usr/lib -L/usr/local/lib"
 QUIRINUS_INCLUDE="-Ilib -I/usr/include -I/usr/local/include"
 
 
-if [ "$1" != "-s" ]
-then
 echo "quirinus::core"
 ${QUIRINUS_CXX} \
   -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
   -c "src/quirinus/core.cpp" -o "build/core.o"
-fi
 
 
-if [ "$1" != "-s" ]
+if [ "$1" != "-q" ]
 then
 echo "quirinus::codecs"
+
+mkdir -p build/codecs
+
 ${QUIRINUS_CXX} \
   -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
   -c "src/quirinus/codecs.cpp" -o "build/codecs.o"
+
 fi
 
 
-if [ "$1" != "-s" ]
+if [ "$1" != "-q" ]
+then
+echo "quirinus::stream"
+${QUIRINUS_CXX} \
+  -Wall ${QUIRINUS_OPTIONS} ${QUIRINUS_INCLUDE} \
+  -c "src/quirinus/stream.cpp" -o "build/stream.o"
+fi
+
+
+if [ "$1" != "-q" ]
 then
 echo "quirinus::filesystem"
 ${QUIRINUS_CXX} \
@@ -46,6 +61,7 @@ ${QUIRINUS_CXX} \
   ${QUIRINUS_LIBRARY} \
   "build/core.o" \
   "build/codecs.o" \
+  "build/stream.o" \
   "build/filesystem.o" \
   "main.cpp" -o "main" \
   -lmpfr -lgmp -lpcre

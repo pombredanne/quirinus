@@ -17,8 +17,8 @@ Bytes
 Unicode::repr() const
 {
   uint32_t code;
-  unicodestack stack;
-  char* buffer = new char[10];
+  char buffer[10];
+  std::vector<unicode> stack;
   const unicode* head = NULL;
   const unicode* tail = NULL;
   head = &*self.begin();
@@ -78,7 +78,6 @@ Unicode::repr() const
     stack.reserve(1);
     stack.push_back(0);
   }
-  delete[] buffer;
   head = &*stack.begin();
   tail = &*stack.end();
   return Bytes(head, tail);
@@ -114,6 +113,11 @@ Unicode::cast_bytes() const
 Unicode
 Unicode::cast_unicode() const
 { return Unicode(this->head(), this->tail()); }
+
+
+Iter
+Unicode::cast_iter() const
+{ return *this; }
 
 
 } // namespace quirinus

@@ -38,7 +38,7 @@ public:
   {}
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Bool(const Bool&& object)
+  Bool(Bool&& object)
   { swap(*this, object); }
 #endif
 
@@ -112,11 +112,5 @@ public:
 };
 
 
-template <>
-struct supertype<bool>
-{ typedef Bool type; };
-
-
 } // namespace quirinus
-#include "autotype/Bool.hpp"
 #endif // QUIRINUS_CORE_TYPES_BOOL_HPP

@@ -8,7 +8,6 @@
 #include "core/config.hpp"
 #include "core/errors.hpp"
 #include "core/iostream.hpp"
-#include "core/operators.hpp"
 #include "core/pointers.hpp"
 #include "core/string.hpp"
 #include "core/system.hpp"

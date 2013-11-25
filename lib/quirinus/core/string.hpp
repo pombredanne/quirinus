@@ -6,6 +6,7 @@
 #ifndef QUIRINUS_CORE_STRING_HPP
 #define QUIRINUS_CORE_STRING_HPP
 #include "config.hpp"
+#include "template.hpp"
 #include "string/nullstrdup.hpp"
 #include "string/nullstrlen.hpp"
 #include "string/u8_decode.hpp"

@@ -11,7 +11,7 @@ namespace quirinus {
 class Unicode: public Object
 {
 private:
-  unicodestack self;
+  std::vector<unicode> self;
 public:
   friend class Bool;
   friend class Int;
@@ -20,13 +20,13 @@ public:
   friend class Iter;
   Unicode(const Object&);
 public:
-  Iter iter() const;
   Bytes repr() const;
   Bool cast_bool() const;
   Int cast_int() const;
   Float cast_float() const;
   Bytes cast_bytes() const;
   Unicode cast_unicode() const;
+  Iter cast_iter() const;
 public:
   ~Unicode()
   {}
@@ -39,7 +39,7 @@ public:
   {}
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Unicode(const Unicode&& object)
+  Unicode(Unicode&& object)
   { swap(*this, object); }
 #endif
 
@@ -244,20 +244,170 @@ public:
     return 0;
   }
 
+  friend Bool
+  operator<(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) < 0); }
+
+    friend Bool
+    operator<(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs < static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator<(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) < rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs < static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) < rhs); }
+
+  friend Bool
+  operator<=(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) <= 0); }
+
+    friend Bool
+    operator<=(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs <= static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator<=(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) <= rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs <= static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) <= rhs); }
+
+  friend Bool
+  operator==(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) == 0); }
+
+    friend Bool
+    operator==(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs == static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator==(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) == rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs == static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) == rhs); }
+
+  friend Bool
+  operator!=(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) != 0); }
+
+    friend Bool
+    operator!=(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs != static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator!=(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) != rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs != static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) != rhs); }
+
+  friend Bool
+  operator>=(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) >= 0); }
+
+    friend Bool
+    operator>=(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs >= static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator>=(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) >= rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs >= static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) >= rhs); }
+
+  friend Bool
+  operator>(const Unicode& lhs, const Unicode& rhs)
+  { return (Unicode::cmp(lhs, rhs) > 0); }
+
+    friend Bool
+    operator>(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs > static_cast<Unicode>(rhs)); }
+
+    friend Bool
+    operator>(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) > rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs > static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) > rhs); }
+
 
   // Mathematical functions
   friend Unicode
   operator+(const Unicode& lhs, const Unicode& rhs)
   {
     Unicode result;
-    unicodestack::const_iterator lbegin = lhs.self.begin();
-    unicodestack::const_iterator lend = lhs.self.end();
-    unicodestack::const_iterator rbegin = rhs.self.begin();
-    unicodestack::const_iterator rend = rhs.self.end();
+    std::vector<unicode>::const_iterator lbegin = lhs.self.begin();
+    std::vector<unicode>::const_iterator lend = lhs.self.end();
+    std::vector<unicode>::const_iterator rbegin = rhs.self.begin();
+    std::vector<unicode>::const_iterator rend = rhs.self.end();
     result.self.insert(result.self.end(), lbegin, lend);
     result.self.insert(result.self.end(), rbegin, rend);
     return result;
   }
+
+    friend Unicode
+    operator+(const Unicode& lhs, const Bytes& rhs)
+    { return (lhs + static_cast<Unicode>(rhs)); }
+
+    friend Unicode
+    operator+(const Bytes& lhs, const Unicode& rhs)
+    { return (static_cast<Unicode>(lhs) + rhs); }
+
+    template <typename TYPE>
+    friend Unicode
+    operator+(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs + static_cast<Unicode>(rhs)); }
+
+    template <typename TYPE>
+    friend Unicode
+    operator+(const TYPE& lhs, const Unicode rhs)
+    { return (static_cast<Unicode>(lhs) + rhs); }
 
   friend Unicode
   operator*(const Unicode& object, Int count)
@@ -265,33 +415,34 @@ public:
     if (mpz_sgn(count.self) <= 0)
       return Unicode();
     Unicode result;
-    unicodestack::const_iterator begin = object.self.begin();
-    unicodestack::const_iterator end = object.self.end();
+    std::vector<unicode>::const_iterator begin = object.self.begin();
+    std::vector<unicode>::const_iterator end = object.self.end();
     for (; count; --count)
       result.self.insert(result.self.end(), begin, end);
     return result;
   }
 
+    template <typename TYPE>
+    friend Unicode
+    operator*(const Unicode& lhs, const TYPE& rhs)
+    { return (lhs * static_cast<Int>(rhs)); }
+
   friend Unicode
   operator*(Int count, const Unicode& object)
-  {
-    if (mpz_sgn(count.self) <= 0)
-      return Unicode();
-    Unicode result;
-    unicodestack::const_iterator begin = object.self.begin();
-    unicodestack::const_iterator end = object.self.end();
-    for (; count; --count)
-      result.self.insert(result.self.end(), begin, end);
-    return result;
-  }
+  { return (object * count); }
+
+    template <typename TYPE>
+    friend Unicode
+    operator*(const TYPE& lhs, const Unicode& rhs)
+    { return (static_cast<Int>(lhs) * rhs); }
 
 
   // Modifying functions
   Unicode&
   operator+=(const Unicode& object)
   {
-    unicodestack::const_iterator begin = object.self.begin();
-    unicodestack::const_iterator end = object.self.end();
+    std::vector<unicode>::const_iterator begin = object.self.begin();
+    std::vector<unicode>::const_iterator end = object.self.end();
     self.insert(self.end(), begin, end);
     return *this;
   }
@@ -303,8 +454,8 @@ public:
       return *this;
     Unicode stack;
     stack.self.insert(stack.self.end(), self.begin(), self.end());
-    unicodestack::const_iterator begin = stack.self.begin();
-    unicodestack::const_iterator end = stack.self.end();
+    std::vector<unicode>::const_iterator begin = stack.self.begin();
+    std::vector<unicode>::const_iterator end = stack.self.end();
     for (; count; --count)
       self.insert(self.end(), begin, end);
     return *this;
@@ -363,8 +514,8 @@ public:
   unicode*
   nullstr() const
   {
-    unicodestack::const_iterator iter = self.begin();
-    unicodestack::const_iterator tail = self.end();
+    std::vector<unicode>::const_iterator iter = self.begin();
+    std::vector<unicode>::const_iterator tail = self.end();
     size_t size = self.size();
     unicode* buffer = new unicode[size + 1];
     for (size_t i = 0; iter < tail; ++iter, ++i)
@@ -378,8 +529,8 @@ public:
   Bool
   nullcheck() const
   {
-    unicodestack::const_iterator iter = self.begin();
-    unicodestack::const_iterator tail = self.end();
+    std::vector<unicode>::const_iterator iter = self.begin();
+    std::vector<unicode>::const_iterator tail = self.end();
     while (iter < tail)
     {
       if (*iter == 0)
@@ -392,9 +543,17 @@ public:
 
 
 template <>
+struct supertype<wchar_t*>
+{ typedef Unicode type; };
+
+template <>
 struct supertype<const wchar_t*>
 { typedef Unicode type; };
 
+
+template <>
+struct supertype<widechar*>
+{ typedef Unicode type; };
 
 template <>
 struct supertype<const widechar*>
@@ -402,10 +561,13 @@ struct supertype<const widechar*>
 
 
 template <>
+struct supertype<unicode*>
+{ typedef Unicode type; };
+
+template <>
 struct supertype<const unicode*>
 { typedef Unicode type; };
 
 
 } // namespace quirinus
-#include "autotype/Unicode.hpp"
 #endif // QUIRINUS_CORE_TYPES_UNICODE_HPP

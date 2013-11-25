@@ -44,6 +44,11 @@ public:
     self_mtime = object.self_mtime;
   }
 
+#if (QUIRINUS_FEATURE_CXX11)
+  VirtualPath(VirtualPath&& object)
+  { swap(*this, object); }
+#endif
+
   VirtualPath(const Path& object)
   {
     const size_t fields = 10;
@@ -193,37 +198,37 @@ public:
 
   Bool
   is_block() const
-  { return ((self_mode & S_IFMT) == S_IFBLK); }
+  { return ((self_mode & Path::FMT) == Path::BLK); }
 
 
   Bool
   is_device() const
-  { return ((self_mode & S_IFMT) == S_IFCHR); }
+  { return ((self_mode & Path::FMT) == Path::CHR); }
 
 
   Bool
   is_dir() const
-  { return ((self_mode & S_IFMT) == S_IFDIR); }
+  { return ((self_mode & Path::FMT) == Path::DIR); }
 
 
   Bool
   is_fifo() const
-  { return ((self_mode & S_IFMT) == S_IFIFO); }
+  { return ((self_mode & Path::FMT) == Path::FIFO); }
 
 
   Bool
   is_file() const
-  { return ((self_mode & S_IFMT) == S_IFREG); }
+  { return ((self_mode & Path::FMT) == Path::REG); }
 
 
   Bool
   is_link() const
-  { return ((self_mode & S_IFMT) == S_IFLNK); }
+  { return ((self_mode & Path::FMT) == Path::LNK); }
 
 
   Bool
   is_socket() const
-  { return ((self_mode & S_IFMT) == S_IFSOCK); }
+  { return ((self_mode & Path::FMT) == Path::SOCK); }
 };
 
 

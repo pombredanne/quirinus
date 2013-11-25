@@ -47,7 +47,7 @@ Float::repr(const Int& base) const
   ::mpfr_set(foperand, self, MPFR_RNDA);
   machine_epsilon = this->machine_epsilon();
   machine_epsilon.copy(epsilon);
-  charstack stack;
+  std::vector<char> stack;
 
   // Extract integral part.
   ::mpfr_modf(ioperand, foperand, foperand, MPFR_RNDA);

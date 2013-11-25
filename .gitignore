@@ -1,7 +1,9 @@
 .directory
 */.directory
+*/.out
 bin/*
 build/*
+ptr/*
 change.py
 main.cpp
 REFERENCE

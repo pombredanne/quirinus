@@ -12,11 +12,13 @@
 
 
 // C++11 compatibility
-#if (__cplusplus > 199711L) \
-|| (defined(__STDCXX_VERSION__) && (__STDCXX_VERSION__ >= 201001L))
-  #define QUIRINUS_FEATURE_CXX11 1
-#else
-  #define QUIRINUS_FEATURE_CXX11 0
+#if !defined(QUIRINUS_FEATURE_CXX11)
+  #if (__cplusplus > 199711L) \
+  || (defined(__STDCXX_VERSION__) && (__STDCXX_VERSION__ >= 201001L))
+    #define QUIRINUS_FEATURE_CXX11 1
+  #else
+    #define QUIRINUS_FEATURE_CXX11 0
+  #endif
 #endif
 
 

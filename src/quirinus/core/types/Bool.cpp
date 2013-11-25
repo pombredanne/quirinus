@@ -15,22 +15,22 @@ Bool::Bool(const Object& object)
 
 Bytes
 Bool::repr() const
-{ return ((!!self) ? "true" : "false"); }
+{ return (self ? "true" : "false"); }
 
 
 Bool
 Bool::cast_bool() const
-{ return (!!self); }
+{ return self; }
 
 
 Int
 Bool::cast_int() const
-{ return ((!!self) ? 1 : 0); }
+{ return (self ? 1 : 0); }
 
 
 Float
 Bool::cast_float() const
-{ return ((!!self) ? 1.0 : 0.0); }
+{ return (self ? 1.0 : 0.0); }
 
 
 Bytes

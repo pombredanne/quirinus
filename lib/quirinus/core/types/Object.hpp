@@ -8,8 +8,24 @@
 namespace quirinus {
 
 
+class Object;
+class Bool;
+class Int;
+class Float;
+class Bytes;
+class Unicode;
+class Iter;
+
+
 class Object
 {
+private:
+  friend class Bool;
+  friend class Int;
+  friend class Float;
+  friend class Bytes;
+  friend class Unicode;
+  friend class Iter;
 public:
   virtual Bytes repr() const;
   virtual Bool cast_bool() const;
@@ -17,6 +33,7 @@ public:
   virtual Float cast_float() const;
   virtual Bytes cast_bytes() const;
   virtual Unicode cast_unicode() const;
+  virtual Iter cast_iter() const;
 public:
   virtual operator bool() const;
   virtual operator signed char() const;
@@ -37,8 +54,6 @@ public:
 #endif
   virtual operator float() const;
   virtual operator double() const;
-  virtual operator const char*() const;
-  virtual operator const unicode*() const;
 public:
   virtual ~Object()
   {}

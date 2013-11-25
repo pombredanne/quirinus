@@ -13,12 +13,4 @@
 #include "config/stdint.hpp"
 #include "config/string.hpp"
 #include "config/system.hpp"
-namespace quirinus {
-class Bool;
-class Int;
-class Float;
-class Bytes;
-class Unicode;
-class Iter;
-} // namespace quirinus
 #endif // QUIRINUS_CORE_CONFIG_HPP

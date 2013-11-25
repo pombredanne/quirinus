@@ -37,7 +37,7 @@ public:
   {}
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Iter(const Iter&& object)
+  Iter(Iter&& object)
   { swap(*this, object); }
 #endif
 
@@ -78,6 +78,74 @@ public:
       throw TypeError("iterable cast failed");
     SUPER temp(object);
     Iter stack(temp);
+    swap(*this, stack);
+  }
+
+  Iter(const Object* iter,
+       const size_t& size)
+  : self_array()
+  , self_index(0)
+  {
+    if (size <= 0)
+      throw ValueError("size must be >= 0");
+    const Object* tail = (iter + size);
+    Iter stack(iter, tail);
+    swap(*this, stack);
+  }
+
+  template <typename TYPE>
+  Iter(const TYPE* iter,
+       const size_t& size)
+  {
+    if (size <= 0)
+      throw ValueError("size must be >= 0");
+    const TYPE* tail = (iter + size);
+    Iter stack(iter, tail);
+    swap(*this, stack);
+  }
+
+  Iter(const char* head,
+       const char* tail)
+  {
+    if (head > tail)
+      throw ValueError("incorrect range");
+    Iter stack(Bytes(head, tail));
+    swap(*this, stack);
+  }
+
+  Iter(const wchar_t* head,
+       const wchar_t* tail)
+  {
+    if (head > tail)
+      throw ValueError("incorrect range");
+    Iter stack(Unicode(head, tail));
+    swap(*this, stack);
+  }
+
+  Iter(const bytechar* head,
+       const bytechar* tail)
+  {
+    if (head > tail)
+      throw ValueError("incorrect range");
+    Iter stack(Bytes(head, tail));
+    swap(*this, stack);
+  }
+
+  Iter(const widechar* head,
+       const widechar* tail)
+  {
+    if (head > tail)
+      throw ValueError("incorrect range");
+    Iter stack(Unicode(head, tail));
+    swap(*this, stack);
+  }
+
+  Iter(const unicode* head,
+       const unicode* tail)
+  {
+    if (head > tail)
+      throw ValueError("incorrect range");
+    Iter stack(Unicode(head, tail));
     swap(*this, stack);
   }
 
@@ -130,7 +198,7 @@ public:
 
 
   // Virtual functions
-  inline Bool
+  Bool
   cast_bool() const
   { return (self_index < self_array.size()); }
 
@@ -146,17 +214,17 @@ public:
   }
 
 
-  inline const Object*
+  const Object*
   head() const
   { return (self_array.begin()->pointer()); }
 
 
-  inline const Object*
+  const Object*
   iter() const
   { return ((self_array.begin() + self_index)->pointer()); }
 
 
-  inline const Object*
+  const Object*
   tail() const
   { return ((self_array.end() - 1)->pointer() + 1); }
 };

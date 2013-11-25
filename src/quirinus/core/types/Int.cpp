@@ -16,13 +16,13 @@ Int::Int(const Object& object)
 Bytes
 Int::repr(const Int& base) const
 {
-  char* pointer = NULL;
+  char* buffer = NULL;
   void (*mp_free_str)(void *, size_t);
   ::mp_get_memory_functions(NULL, NULL, &mp_free_str);
-  pointer = ::mpz_get_str(NULL, base, self);
-  Bytes result(pointer);
-  size_t len = strlen(pointer);
-  mp_free_str(pointer, ++len);
+  buffer = ::mpz_get_str(NULL, base, self);
+  Bytes result(buffer);
+  size_t len = nullstrlen(buffer);
+  mp_free_str(buffer, ++len);
   return result;
 }
 

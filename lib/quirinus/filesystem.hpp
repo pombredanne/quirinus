@@ -8,6 +8,10 @@
 #include "core.hpp"
 #include "codecs.hpp"
 
+#if !defined(S_IFBLK)
+  #define S_IFBLK 0060000
+#endif
+
 #if !defined(S_IFLNK)
   #define S_IFLNK 0120000
 #endif

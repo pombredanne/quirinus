@@ -8,7 +8,7 @@ namespace quirinus {
 namespace {
 
 
-inline void
+void
 sysinfo_uname(struct sysinfo* sys)
 {
   sys->uname.platform = QUIRINUS_PLATFORM;

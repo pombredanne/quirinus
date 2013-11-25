@@ -35,7 +35,7 @@ public:
   what() const throw()
   {
     std::ostringstream sstream;
-    sstream << "LookupError";
+    sstream << "codecs::LookupError";
     if (self_message)
       sstream << ": " << self_message;
     return sstream.str().c_str();

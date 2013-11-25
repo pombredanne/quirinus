@@ -52,6 +52,14 @@
   #define QUIRINUS_PLATFORM ""
 #endif
 
+
+// POSIX platform include
+#if defined(QUIRINUS_PLATFORM_UNIX) \
+|| defined(QUIRINUS_PLATFORM_BSD)
+  #include <termios.h>
+#endif
+
+
 // Windows platform include
 #if defined(QUIRINUS_PLATFORM_WINDOWS)
   #include <io.h>

@@ -55,7 +55,7 @@ public:
   what() const throw()
   {
     std::ostringstream sstream;
-    sstream << "codecs::DecodeError";
+    sstream << "DecodeError";
     if (self_message)
       sstream << ": " << self_message;
     else
@@ -82,6 +82,20 @@ public:
     }
     return sstream.str().c_str();
   }
+
+
+  // Special functions
+  inline int
+  state() const
+  { return self_state; }
+
+  inline size_t
+  offset() const
+  { return self_offset; }
+
+  inline const char*
+  encoding() const
+  { return self_encoding; }
 };
 
 

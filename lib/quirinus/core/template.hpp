@@ -5,9 +5,7 @@
 
 #ifndef QUIRINUS_CORE_TEMPLATE_HPP
 #define QUIRINUS_CORE_TEMPLATE_HPP
-#include "template/cast.hpp"
-#include "template/autotype.hpp"
+#include "template/assertion.hpp"
 #include "template/sametype.hpp"
 #include "template/supertype.hpp"
-#include "template/typeinfo.hpp"
 #endif // QUIRINUS_CORE_TEMPLATE_HPP

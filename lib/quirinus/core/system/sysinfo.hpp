@@ -5,6 +5,19 @@
 
 #ifndef QUIRINUS_CORE_SYSTEM_SYSINFO_HPP
 #define QUIRINUS_CORE_SYSTEM_SYSINFO_HPP
+
+#if defined(stdin)
+  #undef stdin
+#endif
+
+#if defined(stdout)
+  #undef stdout
+#endif
+
+#if defined(stderr)
+  #undef stderr
+#endif
+
 namespace quirinus {
 
 
@@ -54,6 +67,9 @@ struct sysinfo
    */
   struct encoding {
     Bytes locale;
+    Bytes stdin;
+    Bytes stdout;
+    Bytes stderr;
     Bytes stdinstream;
     Bytes stdoutstream;
     Bytes stderrstream;

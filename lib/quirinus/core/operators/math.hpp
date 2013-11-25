@@ -27,6 +27,11 @@ operator-(const LTYPE& lhs, const RTYPE& rhs)
   return (lop - rop);
 }
 
+template <typename LTYPE, typename RTYPE>
+inline typename quirinus::autotype<LTYPE, RTYPE>::type&
+operator-=(LTYPE& lhs, const RTYPE& rhs)
+{ return (lhs -= static_cast<LTYPE>(rhs)); }
+
 
 template <typename LTYPE, typename RTYPE>
 inline typename quirinus::autotype<LTYPE, RTYPE>::type

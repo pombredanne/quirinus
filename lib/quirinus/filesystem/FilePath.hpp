@@ -10,96 +10,10 @@ namespace quirinus {
 namespace filesystem {
 
 
-namespace {
-
-
-byte*
-mkpath(const byte* pointer,
-       const size_t& size)
-{
-  byte* buffer = NULL;
-  const byte* iter = pointer;
-#if (QUIRINUS_FEATURE_POSIX)
-  if (size == 1)
-#else
-  if (size == 2)
-#endif
-  {
-#if (QUIRINUS_FEATURE_POSIX)
-    const size_t size = 1;
-    const size_t append = 1;
-#else
-    const size_t size = 2;
-    const size_t append = 2;
-#endif
-    buffer = new byte[size + append];
-    ::memcpy(buffer, iter, size);
-    ::memset((buffer + size), 0, append);
-    return buffer;
-  }
-
-  bool state;
-  size_t nsize = 0;
-#if (QUIRINUS_FEATURE_POSIX)
-  const size_t append = 1;
-  const bytechar sep = '/';
-#else
-  const size_t append = 2;
-  const bytechar sep = '\\';
-#endif
-  const byte* tail = (pointer + size);
-
-  // Calculate buffer size.
-  state = false;
-  for (iter = pointer; iter < tail; ++iter)
-  {
-    if ((*iter == '/') || (*iter == '\\'))
-    {
-      if (!state)
-      {
-        state = true;
-        ++nsize;
-      }
-      continue;
-    }
-    else
-    {
-      state = false;
-      ++nsize;
-    }
-  }
-
-  // Fill buffer with characters.
-  state = false;
-  size_t index = 0;
-  buffer = new byte[nsize + append];
-  for (iter = pointer; iter < tail; ++iter)
-  {
-    if ((*iter == '/') || (*iter == '\\'))
-    {
-      if (!state)
-        buffer[index++] = sep;
-      state = true;
-    }
-    else
-    {
-      buffer[index++] = *iter;
-      state = false;
-    }
-  }
-  ::memset((buffer + nsize), 0, append);
-  return buffer;
-}
-
-
-} // namespace
-
-
 class FilePath: public Path
 {
 private:
-  size_t self_size;
-  void* self_path;
+  void* self;
 public:
   Int mode() const;
   Int dev() const;
@@ -121,12 +35,91 @@ public:
   Bool is_file() const;
   Bool is_link() const;
   Bool is_socket() const;
+private:
+  FilePath(const bytechar* path,
+           const size_t& size)
+  {
+    bytechar* buffer = NULL;
+    const bytechar* iter = path;
+#if (QUIRINUS_FEATURE_POSIX)
+    if (size != 1)
+#else
+    if (size != 2)
+#endif
+    {
+      size_t nsize = 0;
+      bool state = false;
+#if (QUIRINUS_FEATURE_POSIX)
+      const size_t append = 1;
+      const bytechar sep = '/';
+#else
+      const size_t append = 2;
+      const bytechar sep = '\\';
+#endif
+      const bytechar* tail = (path + size);
+
+      // Calculate buffer size.
+      state = false;
+      for (iter = path; iter < tail; ++iter)
+      {
+        if ((*iter == '/') || (*iter == '\\'))
+        {
+          if (!state)
+          {
+            state = true;
+            ++nsize;
+          }
+          continue;
+        }
+        else
+        {
+          state = false;
+          ++nsize;
+        }
+      }
+
+      // Fill buffer with characters.
+      state = false;
+      size_t index = 0;
+      buffer = new bytechar[nsize + append];
+      for (iter = path; iter < tail; ++iter)
+      {
+        if ((*iter == '/') || (*iter == '\\'))
+        {
+          if (!state)
+            buffer[index++] = sep;
+          state = true;
+        }
+        else
+        {
+          buffer[index++] = *iter;
+          state = false;
+        }
+      }
+      ::memset((buffer + nsize), 0, append);
+      self = buffer;
+    }
+    else
+    {
+#if (QUIRINUS_FEATURE_POSIX)
+      const size_t nsize = 1;
+      const size_t append = 1;
+#else
+      const size_t nsize = 2;
+      const size_t append = 2;
+#endif
+      buffer = new bytechar[nsize + append];
+      ::memcpy(buffer, iter, nsize);
+      ::memset((buffer + nsize), 0, append);
+      self = buffer;
+    }
+  }
 public:
   ~FilePath()
-  { delete[] static_cast<byte*>(self_path); }
+  { delete[] static_cast<bytechar*>(self); }
 
   FilePath()
-  : self_path(NULL)
+  : self(NULL)
   {
     Unicode path(Path::CURDIR);
     FilePath stack(path);
@@ -134,105 +127,65 @@ public:
   }
 
   FilePath(const FilePath& object)
-  : self_path(NULL)
+  : self(NULL)
   {
-    byte* buffer = NULL;
+    bytechar* buffer = NULL;
 #if (QUIRINUS_FEATURE_POSIX)
     const size_t append = 1;
+    const size_t size = nullstrlen(static_cast<char*>(object.self));
 #else
     const size_t append = 2;
+    const size_t size = (nullstrlen(static_cast<wchar_t*>(object.self)) * 2);
 #endif
-    const byte* path = static_cast<byte*>(object.self_path);
-    const size_t size = object.self_size;
-    buffer = new byte[size + append];
+    const bytechar* path = static_cast<bytechar*>(object.self);
+    buffer = new bytechar[size + append];
     ::memcpy(buffer, path, size);
     ::memset((buffer + size), 0, append);
-    self_path = buffer;
-    self_size = size;
+    self = buffer;
   }
 
 #if (QUIRINUS_FEATURE_CXX11)
-  FilePath(const FilePath&& object)
-  : self_path(NULL)
+  FilePath(FilePath&& object)
+  : self(NULL)
   { swap(*this, object); }
 #endif
 
-  FilePath(const char* str)
-  : self_path(NULL)
+  template <typename TYPE>
+  FilePath(TYPE object)
+  : self(NULL)
   {
-    Bytes path(str);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const wchar_t* str)
-  : self_path(NULL)
-  {
-    Unicode path(str);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const bytechar* str)
-  : self_path(NULL)
-  {
-    Bytes path(str);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const widechar* str)
-  : self_path(NULL)
-  {
-    Unicode path(str);
-    FilePath stack(path);
-    swap(*this, stack);
-  }
-
-  FilePath(const unicode* str)
-  : self_path(NULL)
-  {
-    Unicode path(str);
+    typename supertype<TYPE>::type path(object);
     FilePath stack(path);
     swap(*this, stack);
   }
 
   FilePath(const Bytes& str)
-  : self_path(NULL)
+  : self(NULL)
   {
     if (str.nullcheck())
       throw ValueError("null character occured");
 #if (QUIRINUS_FEATURE_POSIX)
-    Bytes stack(str.head(), str.tail());
+    Bytes buffer(str.head(), str.tail());
 #else
-    Bytes stack(codecs::convert(str, "UTF-8", "UTF-16"));
+    Bytes buffer(codecs::convert(str, "UTF-8", "UTF-16"));
 #endif
-    self_size = stack.length();
-    const bytechar* pointer = static_cast<const bytechar*>(stack);
-    const size_t size = stack.length();
-    self_path = mkpath(pointer, size);
-#if (QUIRINUS_FEATURE_POSIX)
-    self_size = nullstrlen(static_cast<char*>(self_path));
-#else
-    self_size = (nullstrlen(static_cast<wchar_t*>(self_path)) * 2);
-#endif
+    const bytechar* path = static_cast<const bytechar*>(buffer);
+    const size_t size = buffer.length();
+    FilePath stack(path, size);
+    swap(*this, stack);
   }
 
   FilePath(const Unicode& str)
-  : self_path(NULL)
+  : self(NULL)
   {
     if (str.nullcheck())
       throw ValueError("null character occured");
     Bytes encoding = Path::encoding();
-    Bytes stack = codecs::encode(str, encoding);
-    const bytechar* pointer = static_cast<const bytechar*>(stack);
-    const size_t size = stack.length();
-    self_path = mkpath(pointer, size);
-#if (QUIRINUS_FEATURE_POSIX)
-    self_size = nullstrlen(static_cast<char*>(self_path));
-#else
-    self_size = (nullstrlen(static_cast<wchar_t*>(self_path)) * 2);
-#endif
+    Bytes buffer = codecs::encode(str, encoding);
+    const bytechar* path = static_cast<const bytechar*>(buffer);
+    const size_t size = buffer.length();
+    FilePath stack(path, size);
+    swap(*this, stack);
   }
 
 
@@ -241,8 +194,7 @@ public:
   swap(FilePath& lhs, FilePath& rhs)
   {
     using std::swap;
-    swap(lhs.self_size, rhs.self_size);
-    swap(lhs.self_path, rhs.self_path);
+    swap(lhs.self, rhs.self);
   }
 
 
@@ -259,7 +211,7 @@ public:
   operator const char*() const
   {
 #if (QUIRINUS_FEATURE_POSIX)
-    return static_cast<const char*>(self_path);
+    return static_cast<const char*>(self);
 #else
     throw CastError("C++ const char* casting failed");
 #endif
@@ -270,7 +222,7 @@ public:
 #if (QUIRINUS_FEATURE_POSIX)
     throw CastError("C++ const wchar_t* casting failed");
 #else
-    return static_cast<const wchar_t*>(self_path);
+    return static_cast<const wchar_t*>(self);
 #endif
   }
 
@@ -290,12 +242,11 @@ public:
   Bytes
   cast_bytes() const
   {
-    const size_t size = self_size;
-    const byte* path = static_cast<byte*>(self_path);
+    const bytechar* path = static_cast<bytechar*>(self);
 #if (QUIRINUS_FEATURE_POSIX)
-    return Bytes(path, size);
+    return Bytes(path, nullstrlen(static_cast<char*>(self)));
 #else
-    Bytes stack(path, size);
+    Bytes stack(path, (nullstrlen(static_cast<wchar_t*>(self)) * 2));
     return codecs::convert(stack, "UTF-16", "UTF-8");
 #endif
   }
@@ -332,19 +283,21 @@ public:
     if (rhs.is_absolute() \
     || (rhs == Path::CURDIR))
       return lhs;
-    const byte* lpath = static_cast<byte*>(lhs.self_path);
-    const byte* rpath = static_cast<byte*>(rhs.self_path);
+    const bytechar* lpath = static_cast<bytechar*>(lhs.self);
+    const bytechar* rpath = static_cast<bytechar*>(rhs.self);
 #if (QUIRINUS_FEATURE_POSIX)
     const size_t append = 1;
     const byte separator[1] = {'/'};
+    const size_t lsize = nullstrlen(static_cast<char*>(lhs.self));
+    const size_t rsize = nullstrlen(static_cast<char*>(rhs.self));
 #else
     const size_t append = 2;
     const byte separator[2] = {'\\', '\0'};
+    const size_t lsize = (nullstrlen(static_cast<wchar_t*>(lhs.self)) * 2);
+    const size_t rsize = (nullstrlen(static_cast<wchar_t*>(rhs.self)) * 2);
 #endif
-    const size_t lsize = lhs.self_size;
-    const size_t rsize = rhs.self_size;
     const size_t size = (lsize + append + rsize);
-    byte* buffer = new byte[size + append];
+    bytechar* buffer = new bytechar[size + append];
     ::memcpy(buffer, lpath, lsize);
     ::memcpy((buffer + lsize), separator, append);
     ::memcpy((buffer + lsize + append), rpath, rsize);
@@ -504,5 +457,4 @@ public:
 
 } // namespace filesystem
 } // namespace quirinus
-#include "autotype/FilePath.hpp"
 #endif // QUIRINUS_FILESYSTEM_FILEPATH_HPP

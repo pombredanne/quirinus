@@ -16,9 +16,9 @@ Bytes::Bytes(const Object& object)
 Bytes
 Bytes::repr() const
 {
-  bytechar code;
-  bytecharstack stack;
-  char* buffer = new char[4];
+  uint8_t code;
+  char buffer[4];
+  std::vector<bytechar> stack;
   const bytechar* head = NULL;
   const bytechar* tail = NULL;
   head = &*self.begin();
@@ -64,6 +64,7 @@ Bytes::repr() const
     }
     else
     {
+      ::memset(buffer, 0, 4);
       ::sprintf(buffer, "\\x%02x", code);
       for (size_t j = 0; j < 4; ++j)
         stack.push_back(buffer[j]);
@@ -74,7 +75,6 @@ Bytes::repr() const
     stack.reserve(1);
     stack.push_back(0);
   }
-  delete[] buffer;
   head = &*stack.begin();
   tail = &*stack.end();
   return Bytes(head, tail);
@@ -120,6 +120,11 @@ Bytes::cast_bytes() const
 Unicode
 Bytes::cast_unicode() const
 { return Unicode(this->head(), this->tail()); }
+
+
+Iter
+Bytes::cast_iter() const
+{ return *this; }
 
 
 } // namespace quirinus

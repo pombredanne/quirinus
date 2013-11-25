@@ -12,6 +12,14 @@ namespace filesystem {
 class Path: public Object
 {
 public:
+  static const Int BLK;
+  static const Int CHR;
+  static const Int DIR;
+  static const Int FIFO;
+  static const Int LNK;
+  static const Int FMT;
+  static const Int REG;
+  static const Int SOCK;
   static const Bytes SEP;
   static const Bytes ALTSEP;
   static const Bytes CURDIR;

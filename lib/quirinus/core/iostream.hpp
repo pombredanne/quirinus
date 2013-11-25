@@ -10,22 +10,30 @@
 namespace quirinus {
 
 
-ocharstream&
-operator<<(ocharstream& sstream,
+std::ostream&
+operator<<(std::ostream& sstream,
            const NullPointer&);
 
+
 template<typename TYPE>
-ocharstream&
-operator<<(ocharstream& sstream,
+std::ostream&
+operator<<(std::ostream& sstream,
            const SmartPointer<TYPE>& object);
 
-ocharstream&
-operator<<(ocharstream& sstream,
+
+std::ostream&
+operator<<(std::ostream& sstream,
            const Error& object);
 
-ocharstream&
-operator<<(ocharstream& sstream,
+
+std::ostream&
+operator<<(std::ostream& sstream,
            const Object& object);
+
+
+std::ostream&
+operator<<(std::ostream& sstream,
+           const Int& object);
 
 
 } // namespace quirinus

@@ -5,6 +5,7 @@
 
 #ifndef QUIRINUS_CORE_TYPES_INT_HPP
 #define QUIRINUS_CORE_TYPES_INT_HPP
+#include "Bool.hpp"
 namespace quirinus {
 
 
@@ -18,8 +19,6 @@ public:
   friend class Bytes;
   friend class Unicode;
   Int(const Object&);
-  template <typename TYPE> struct autotype;
-  template <typename TYPE> struct typeinfo;
 public:
   Bytes repr() const;
   Bool cast_bool() const;
@@ -33,6 +32,71 @@ public:
   friend Bytes operator*(Int count, const Bytes& object);
   friend Unicode operator*(const Unicode& object, Int count);
   friend Unicode operator*(Int count, const Unicode& object);
+private:
+  template <typename TYPE>
+  Int(const TYPE& object,
+      const int& state)
+  {
+    const int state_unsigned = 0;
+    const int state_negative = -1;
+    const int state_positive = +1;
+    if ((state != state_unsigned)
+    &&  (state != state_negative)
+    &&  (state != state_positive))
+      throw ValueError("integer type must be 0, +1 or -1");
+    ::mpz_init2(self, (sizeof(TYPE) * CHAR_BIT));
+    if (state != state_unsigned)
+    {
+      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &object);
+      if (state == state_negative)
+        ::mpz_neg(self, self);
+    }
+    else
+      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &object);
+  }
+
+  template <typename TYPE>
+  TYPE cast(const char* type = NULL) const
+  {
+    size_t size = 0;
+    Int min = std::numeric_limits<TYPE>::min();
+    Int max = std::numeric_limits<TYPE>::max();
+    const bool check_min = (::mpz_cmp(self, min.self) >= 0);
+    const bool check_max = (::mpz_cmp(self, max.self) <= 0);
+    if (check_min && check_max)
+    {
+      TYPE buffer = 0;
+      ::mpz_export(&buffer, &size, 0, sizeof(TYPE), 0, 0, self);
+      return (buffer * mpz_sgn(self));
+    }
+    char* repr_min = NULL;
+    char* repr_max = NULL;
+    size_t repr_size = 0;
+    std::ostringstream sstream;
+    void (*mp_free_str)(void *, size_t);
+    ::mp_get_memory_functions(NULL, NULL, &mp_free_str);
+    repr_min = ::mpz_get_str(NULL, 10, min.self);
+    repr_max = ::mpz_get_str(NULL, 10, max.self);
+    if (!repr_min || !repr_max)
+      throw MemoryError();
+    size = (sizeof(TYPE) * CHAR_BIT);
+    if (!type)
+      sstream << "C++ casting failed: ";
+    else
+    {
+      sstream << "C++ " << type << " (" << size << "-bit)";
+      sstream << " casting failed: ";
+    }
+    if (!check_min)
+      sstream << "value < " << repr_min;
+    else
+      sstream << "value > " << repr_max;
+    repr_size = nullstrlen(repr_min);
+    mp_free_str(repr_min, ++repr_size);
+    repr_size = nullstrlen(repr_max);
+    mp_free_str(repr_max, ++repr_size);
+    throw CastError(sstream.str().c_str());
+  }
 public:
   ~Int()
   { ::mpz_clear(self); }
@@ -47,29 +111,97 @@ public:
   }
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Int(const Int&& object)
+  Int(Int&& object)
   { swap(*this, object); }
 #endif
 
-  template <typename TYPE>
-  Int(TYPE object)
+  Int(const bool& object)
   {
-    if (Int::typeinfo<TYPE>::sign)
-    {
-      ::mpz_init2(self, (sizeof(TYPE) * CHAR_BIT));
-      typename Int::typeinfo<TYPE>::stype svalue(object);
-      typename Int::typeinfo<TYPE>::utype uvalue(object);
-      uvalue = ((svalue < 0) ? -svalue : svalue);
-      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &uvalue);
-      if (svalue < 0)
-        ::mpz_neg(self, self);
-    }
-    else
-    {
-      ::mpz_init2(self, (sizeof(TYPE) * CHAR_BIT));
-      ::mpz_import(self, 1, 1, sizeof(TYPE), 0, 0, &object);
-    }
+    ::mpz_init2(self, 1);
+    ::mpz_set_ui(self, object);
   }
+
+  Int(const signed char& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const unsigned char& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+
+  Int(const signed short& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const unsigned short& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+
+  Int(const signed int& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const unsigned int& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+
+  Int(const signed long& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const unsigned long& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+
+#if (QUIRINUS_FEATURE_LONGLONG)
+  Int(const signed long long& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const unsigned long long& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+#endif
+
+#if (QUIRINUS_FEATURE_INT128)
+  Int(const int128_t& object)
+  {
+    int state = ((object < 0) ? -1 : +1);
+    Int stack(&object, state);
+    swap(*this, stack);
+  }
+
+  Int(const uint128_t& object)
+  {
+    Int stack(&object, 0);
+    swap(*this, stack);
+  }
+#endif
 
   Int(const mpz_t& object)
   {
@@ -125,79 +257,44 @@ public:
 
   // Cast functions
   operator signed char() const
-  { return cast<signed char>(); }
+  { return cast<signed char>("signed char"); }
 
   operator unsigned char() const
-  { return cast<unsigned char>(); }
+  { return cast<unsigned char>("unsigned char"); }
 
   operator signed short() const
-  { return cast<signed short>(); }
+  { return cast<signed short>("signed short"); }
 
   operator unsigned short() const
-  { return cast<unsigned short>(); }
+  { return cast<unsigned short>("unsigned short"); }
 
   operator signed int() const
-  { return cast<signed int>(); }
+  { return cast<signed int>("signed int"); }
 
   operator unsigned int() const
-  { return cast<unsigned int>(); }
+  { return cast<unsigned int>("unsigned int"); }
 
   operator signed long() const
-  { return cast<signed long>(); }
+  { return cast<signed long>("signed long"); }
 
   operator unsigned long() const
-  { return cast<unsigned long>(); }
+  { return cast<unsigned long>("unsigned long"); }
 
 #if (QUIRINUS_FEATURE_LONGLONG)
   operator signed long long() const
-  { return cast<signed long long>(); }
+  { return cast<signed long long>("signed long long"); }
 
   operator unsigned long long() const
-  { return cast<unsigned long long>(); }
+  { return cast<unsigned long long>("unsigned long long"); }
 #endif
 
 #if (QUIRINUS_FEATURE_INT128)
   operator int128_t() const
-  { return cast<int128_t>(); }
+  { return cast<int128_t>("int128_t"); }
 
   operator uint128_t() const
-  { return cast<uint128_t>(); }
+  { return cast<uint128_t>("uint128_t"); }
 #endif
-
-
-  template <typename TYPE>
-  TYPE cast() const
-  {
-    size_t size = 0;
-    Int min = Int::typeinfo<TYPE>::min;
-    Int max = Int::typeinfo<TYPE>::max;
-    if ((::mpz_cmp(self, min.self) >= 0)
-    &&  (::mpz_cmp(self, max.self) <= 0))
-    {
-      typename Int::typeinfo<TYPE>::utype buffer;
-      ::mpz_export(&buffer, &size, 0, sizeof(TYPE), 0, 0, self);
-      return static_cast<TYPE>(buffer * mpz_sgn(self));
-    }
-    const char* types[] = \
-    {
-      "signed char",
-      "unsigned char",
-      "signed short",
-      "unsigned short",
-      "signed int",
-      "unsigned int",
-      "signed long",
-      "unsigned long",
-      "signed long long",
-      "unsigned long long",
-      "int128_t",
-      "uint128_t",
-    };
-    std::ostringstream sstream;
-    size_t typeno = Int::typeinfo<TYPE>::typeno;
-    sstream << "C++ " << types[typeno] << " casting failed";
-    throw CastError(sstream.str().c_str());
-  }
 
 
   // Virtual functions
@@ -207,11 +304,89 @@ public:
 
 
   // Comparison functions
-  static int
-  cmp(const Int& lhs, const Int& rhs)
-  {
-    return ::mpz_cmp(lhs.self, rhs.self);
-  }
+  friend Bool
+  operator<(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) < 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const Int& lhs, const TYPE& rhs)
+    { return (lhs < static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) < rhs); }
+
+  friend Bool
+  operator<=(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) <= 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const Int& lhs, const TYPE& rhs)
+    { return (lhs <= static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) <= rhs); }
+
+  friend Bool
+  operator==(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) == 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const Int& lhs, const TYPE& rhs)
+    { return (lhs == static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) == rhs); }
+
+  friend Bool
+  operator!=(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) != 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const Int& lhs, const TYPE& rhs)
+    { return (lhs != static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) != rhs); }
+
+  friend Bool
+  operator>=(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) >= 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const Int& lhs, const TYPE& rhs)
+    { return (lhs >= static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) >= rhs); }
+
+  friend Bool
+  operator>(const Int& lhs, const Int& rhs)
+  { return (::mpz_cmp(lhs.self, rhs.self) > 0); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const Int& lhs, const TYPE& rhs)
+    { return (lhs > static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) > rhs); }
 
 
   // Mathematical functions
@@ -223,6 +398,16 @@ public:
     return result;
   }
 
+    template <typename TYPE>
+    friend Int
+    operator+(const Int& lhs, const TYPE& rhs)
+    { return (lhs + static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator+(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) + rhs); }
+
   friend Int
   operator-(const Int& lhs, const Int& rhs)
   {
@@ -230,6 +415,16 @@ public:
     ::mpz_sub(result.self, lhs.self, rhs.self);
     return result;
   }
+
+    template <typename TYPE>
+    friend Int
+    operator-(const Int& lhs, const TYPE& rhs)
+    { return (lhs - static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator-(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) - rhs); }
 
   friend Int
   operator*(const Int& lhs, const Int& rhs)
@@ -239,25 +434,35 @@ public:
     return result;
   }
 
-  friend Int
-  operator/(const Int& lhs, const Int& rhs)
-  {
-    if (!mpz_sgn(rhs.self))
-      throw ZeroDivError("division by zero");
-    Int result;
-    ::mpz_div(result.self, lhs.self, rhs.self);
-    return result;
-  }
+    template <typename TYPE>
+    friend Int
+    operator*(const Int& lhs, const TYPE& rhs)
+    { return (lhs * static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator*(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) * rhs); }
 
   friend Int
   operator%(const Int& lhs, const Int& rhs)
   {
     if (!mpz_sgn(rhs.self))
-      throw ZeroDivError("division by zero");
+      throw ZeroDivError();
     Int result;
     ::mpz_mod(result.self, lhs.self, rhs.self);
     return result;
   }
+
+    template <typename TYPE>
+    friend Int
+    operator%(const Int& lhs, const TYPE& rhs)
+    { return (lhs % static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator%(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) % rhs); }
 
 
   // Logical functions
@@ -269,6 +474,16 @@ public:
     return result;
   }
 
+    template <typename TYPE>
+    friend Int
+    operator&(const Int& lhs, const TYPE& rhs)
+    { return (lhs & static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator&(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) & rhs); }
+
   friend Int
   operator|(const Int& lhs, const Int& rhs)
   {
@@ -276,6 +491,16 @@ public:
     ::mpz_ior(result.self, lhs.self, rhs.self);
     return result;
   }
+
+    template <typename TYPE>
+    friend Int
+    operator|(const Int& lhs, const TYPE& rhs)
+    { return (lhs | static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator|(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) | rhs); }
 
   friend Int
   operator^(const Int& lhs, const Int& rhs)
@@ -285,6 +510,16 @@ public:
     return result;
   }
 
+    template <typename TYPE>
+    friend Int
+    operator^(const Int& lhs, const TYPE& rhs)
+    { return (lhs ^ static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator^(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) ^ rhs); }
+
   friend Int
   operator<<(const Int& lhs, const Int& rhs)
   {
@@ -293,6 +528,16 @@ public:
     return result;
   }
 
+    template <typename TYPE>
+    friend Int
+    operator<<(const Int& lhs, const TYPE& rhs)
+    { return (lhs << static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator<<(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) << rhs); }
+
   friend Int
   operator>>(const Int& lhs, const Int& rhs)
   {
@@ -300,6 +545,16 @@ public:
     ::mpz_fdiv_q_2exp(result.self, lhs.self, rhs);
     return result;
   }
+
+    template <typename TYPE>
+    friend Int
+    operator>>(const Int& lhs, const TYPE& rhs)
+    { return (lhs >> static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Int
+    operator>>(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) >> rhs); }
 
 
   // Modifying functions
@@ -457,63 +712,5 @@ public:
 };
 
 
-template <typename TYPE>
-struct autotype<Int, TYPE>
-{ typedef typename Int::autotype<TYPE>::type type; };
-
-template <typename TYPE>
-struct autotype<TYPE, Int>
-{ typedef typename Int::autotype<TYPE>::type type; };
-
-
-template <>
-struct supertype<signed char>
-{ typedef Int type; };
-
-template <>
-struct supertype<unsigned char>
-{ typedef Int type; };
-
-
-template <>
-struct supertype<signed short>
-{ typedef Int type; };
-
-template <>
-struct supertype<unsigned short>
-{ typedef Int type; };
-
-
-template <>
-struct supertype<signed int>
-{ typedef Int type; };
-
-template <>
-struct supertype<unsigned int>
-{ typedef Int type; };
-
-
-template <>
-struct supertype<signed long>
-{ typedef Int type; };
-
-template <>
-struct supertype<unsigned long>
-{ typedef Int type; };
-
-
-#if (QUIRINUS_FEATURE_LONGLONG)
-template <>
-struct supertype<signed long long>
-{ typedef Int type; };
-
-template <>
-struct supertype<unsigned long long>
-{ typedef Int type; };
-#endif
-
-
 } // namespace quirinus
-#include "autotype/Int.hpp"
-#include "typeinfo/Int.hpp"
 #endif // QUIRINUS_CORE_TYPES_INT_HPP

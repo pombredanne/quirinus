@@ -5,64 +5,29 @@
 
 #ifndef QUIRINUS_CORE_STRING_NULLSTRDUP_HPP
 #define QUIRINUS_CORE_STRING_NULLSTRDUP_HPP
+#include "character.hpp"
 #include "nullstrlen.hpp"
 namespace quirinus {
 
 
-inline bytechar*
-nullstrdup(const bytechar* str)
-{
-  size_t len = nullstrlen(str);
-  bytechar* pointer = new bytechar[(len + 1)];
-  for (size_t i = 0; i < len; ++i)
-    pointer[i] = str[i];
-  pointer[len] = 0;
-  return pointer;
-}
+bytechar*
+nullstrdup(const bytechar* str);
 
 
-inline widechar*
-nullstrdup(const widechar* str)
-{
-  size_t len = nullstrlen(str);
-  widechar* pointer = new widechar[(len + 1)];
-  for (size_t i = 0; i < len; ++i)
-    pointer[i] = str[i];
-  pointer[len] = 0;
-  return pointer;
-}
+widechar*
+nullstrdup(const widechar* str);
 
 
-inline unicode*
-nullstrdup(const unicode* str)
-{
-  size_t len = nullstrlen(str);
-  unicode* pointer = new unicode[(len + 1)];
-  for (size_t i = 0; i < len; ++i)
-    pointer[i] = str[i];
-  pointer[len] = 0;
-  return pointer;
-}
+unicode*
+nullstrdup(const unicode* str);
 
 
-inline char*
-nullstrdup(const char* str)
-{
-  const bytechar* pointer = reinterpret_cast<const bytechar*>(str);
-  return reinterpret_cast<char*>(nullstrdup(pointer));
-}
+char*
+nullstrdup(const char* str);
 
 
-inline wchar_t*
-nullstrdup(const wchar_t* str)
-{
-#if (QUIRINUS_UNICODE_WCHAR_SIZE == 4)
-  const unicode* pointer = reinterpret_cast<const unicode*>(str);
-#else
-  const widechar* pointer = reinterpret_cast<const widechar*>(str);
-#endif
-  return reinterpret_cast<wchar_t*>(nullstrdup(pointer));
-}
+wchar_t*
+nullstrdup(const wchar_t* str);
 
 
 } // namespace quirinus

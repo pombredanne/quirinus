@@ -36,12 +36,17 @@ Object::cast_unicode() const
 { throw AttributeError("Unicode casting not implemented"); }
 
 
+Iter
+Object::cast_iter() const
+{ throw AttributeError("iterable casting not implemented"); }
+
+
 Object::operator bool() const
 { return this->cast_bool(); }
 
 
 Object::operator signed char() const
-{ return static_cast<signed char>(this->cast_int()); }
+{ return this->cast_int(); }
 
 
 Object::operator unsigned char() const
@@ -98,14 +103,6 @@ Object::operator float() const
 
 Object::operator double() const
 { return this->cast_float(); }
-
-
-Object::operator const char*() const
-{ return this->cast_bytes(); }
-
-
-Object::operator const unicode*() const
-{ return this->cast_unicode(); }
 
 
 } // namespace quirinus

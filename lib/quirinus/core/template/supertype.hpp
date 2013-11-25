@@ -9,7 +9,11 @@ namespace quirinus {
 
 
 template <typename TYPE>
-struct supertype {};
+struct supertype
+{
+  static const bool value = false;
+  typedef TYPE type;
+};
 
 
 } // namespace quirinus

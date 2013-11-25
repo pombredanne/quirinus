@@ -18,6 +18,16 @@ public:
   friend class Bytes;
   friend class Unicode;
   Float(const Object&);
+template <typename TYPE>
+  struct typeinfo
+  {
+    typedef uint8_t type;
+    static const bool sign = false;
+    static const bool integer = false;
+    static const uint8_t min = SCHAR_MIN;
+    static const uint8_t max = SCHAR_MAX;
+    static const size_t typeno = SIZE_MAX;
+  };
 public:
   Bytes repr() const;
   Bool cast_bool() const;
@@ -43,7 +53,7 @@ public:
   }
 
 #if (QUIRINUS_FEATURE_CXX11)
-  Float(const Float&& object)
+  Float(Float&& object)
   { swap(*this, object); }
 #endif
 
@@ -94,9 +104,137 @@ public:
 
 
   // Comparison functions
-  static int
-  cmp(const Float& lhs, const Float& rhs)
-  { return ::mpfr_cmp(lhs.self, rhs.self); }
+  friend Bool
+  operator<(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) < 0); }
+
+    friend Bool
+    operator<(const Float& lhs, const Int& rhs)
+    { return (lhs < static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator<(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) < rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const Float& lhs, const TYPE& rhs)
+    { return (lhs < static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) < rhs); }
+
+  friend Bool
+  operator<=(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) <= 0); }
+
+    friend Bool
+    operator<=(const Float& lhs, const Int& rhs)
+    { return (lhs <= static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator<=(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) <= rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const Float& lhs, const TYPE& rhs)
+    { return (lhs <= static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator<=(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) <= rhs); }
+
+  friend Bool
+  operator==(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) == 0); }
+
+    friend Bool
+    operator==(const Float& lhs, const Int& rhs)
+    { return (lhs == static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator==(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) == rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const Float& lhs, const TYPE& rhs)
+    { return (lhs == static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator==(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) == rhs); }
+
+  friend Bool
+  operator!=(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) != 0); }
+
+    friend Bool
+    operator!=(const Float& lhs, const Int& rhs)
+    { return (lhs != static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator!=(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) != rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const Float& lhs, const TYPE& rhs)
+    { return (lhs != static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator!=(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) != rhs); }
+
+  friend Bool
+  operator>=(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) >= 0); }
+
+    friend Bool
+    operator>=(const Float& lhs, const Int& rhs)
+    { return (lhs >= static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator>=(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) >= rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const Float& lhs, const TYPE& rhs)
+    { return (lhs >= static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>=(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) >= rhs); }
+
+  friend Bool
+  operator>(const Float& lhs, const Float& rhs)
+  { return (::mpfr_cmp(lhs.self, rhs.self) > 0); }
+
+    friend Bool
+    operator>(const Float& lhs, const Int& rhs)
+    { return (lhs > static_cast<Float>(rhs)); }
+
+    friend Bool
+    operator>(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) > rhs); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const Float& lhs, const TYPE& rhs)
+    { return (lhs > static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Bool
+    operator>(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) > rhs); }
 
 
   // Mathematical functions
@@ -108,6 +246,24 @@ public:
     return result;
   }
 
+    friend Float
+    operator+(const Float& lhs, const Int& rhs)
+    { return (lhs + static_cast<Float>(rhs)); }
+
+    friend Float
+    operator+(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) + rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator+(const Float& lhs, const TYPE& rhs)
+    { return (lhs + static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator+(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) + rhs); }
+
   friend Float
   operator-(const Float& lhs, const Float& rhs)
   {
@@ -115,6 +271,24 @@ public:
     ::mpfr_sub(result.self, lhs.self, rhs.self, MPFR_RNDA);
     return result;
   }
+
+    friend Float
+    operator-(const Float& lhs, const Int& rhs)
+    { return (lhs - static_cast<Float>(rhs)); }
+
+    friend Float
+    operator-(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) - rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator-(const Float& lhs, const TYPE& rhs)
+    { return (lhs - static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator-(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) - rhs); }
 
   friend Float
   operator*(const Float& lhs, const Float& rhs)
@@ -124,6 +298,24 @@ public:
     return result;
   }
 
+    friend Float
+    operator*(const Float& lhs, const Int& rhs)
+    { return (lhs * static_cast<Float>(rhs)); }
+
+    friend Float
+    operator*(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) * rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator*(const Float& lhs, const TYPE& rhs)
+    { return (lhs * static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator*(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) * rhs); }
+
   friend Float
   operator/(const Float& lhs, const Float& rhs)
   {
@@ -131,6 +323,34 @@ public:
     ::mpfr_div(result.self, lhs.self, rhs.self, MPFR_RNDA);
     return result;
   }
+
+    friend Float
+    operator/(const Float& lhs, const Int& rhs)
+    { return (lhs / static_cast<Float>(rhs)); }
+
+    friend Float
+    operator/(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) / rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator/(const Float& lhs, const TYPE& rhs)
+    { return (lhs / static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator/(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) / rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator/(const Int& lhs, const TYPE& rhs)
+    { return (static_cast<Float>(lhs) / static_cast<Float>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator/(const TYPE& lhs, const Int& rhs)
+    { return (static_cast<Float>(lhs) / static_cast<Float>(rhs)); }
 
   friend Float
   operator%(const Float& lhs, const Float& rhs)
@@ -142,6 +362,24 @@ public:
     ::mpfr_sub(result.self, lhs.self, result.self, MPFR_RNDA);
     return result;
   }
+
+    friend Float
+    operator%(const Float& lhs, const Int& rhs)
+    { return (lhs % static_cast<Int>(rhs)); }
+
+    friend Float
+    operator%(const Int& lhs, const Float& rhs)
+    { return (static_cast<Float>(lhs) % rhs); }
+
+    template <typename TYPE>
+    friend Float
+    operator%(const Float& lhs, const TYPE& rhs)
+    { return (lhs % static_cast<typename supertype<TYPE>::type>(rhs)); }
+
+    template <typename TYPE>
+    friend Float
+    operator%(const TYPE& lhs, const Float& rhs)
+    { return (static_cast<typename supertype<TYPE>::type>(lhs) % rhs); }
 };
 
 
@@ -163,5 +401,4 @@ struct supertype<long double>
 
 
 } // namespace quirinus
-#include "autotype/Float.hpp"
 #endif // QUIRINUS_CORE_TYPES_FLOAT_HPP
